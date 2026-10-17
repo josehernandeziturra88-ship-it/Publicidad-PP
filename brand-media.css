@@ -1,4 +1,5 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.catalog .icecream-varieties{margin-bottom:16px}.catalog .brands-window{margin-bottom:0}.catalog{padding-bottom:45px}
 .location-card{display:grid;grid-template-columns:minmax(0,1fr) 112px;column-gap:20px;align-items:start}
 .location-card>.location-label,.location-card>address,.location-card>p{grid-column:1}
 .location-map-reference{display:block;grid-column:2;grid-row:1 / span 3;align-self:center;width:112px;margin:0}
