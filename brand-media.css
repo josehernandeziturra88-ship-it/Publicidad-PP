@@ -1,4 +1,10 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.catalog-heading{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:center;gap:40px;margin-bottom:30px}
+.catalog-heading-copy{min-width:0}.catalog-heading h2{font-size:clamp(38px,4.4vw,65px)}
+.catalog-heading-copy>p:not(.eyebrow){font-size:14px;line-height:1.8;max-width:540px}
+.catalog-mascot{display:block;width:100%;max-width:400px;height:auto;justify-self:end;background:transparent}
+@media(max-width:760px){.catalog-heading{grid-template-columns:minmax(0,1fr) 120px;gap:12px}.catalog-heading h2{font-size:clamp(29px,7.8vw,48px);letter-spacing:-1px}.catalog-heading-copy>p:not(.eyebrow){font-size:12px}.catalog-mascot{width:100%;max-width:160px}.catalog-heading .eyebrow{font-size:9px;letter-spacing:1px}}
+@media(max-width:350px){.catalog-heading{grid-template-columns:minmax(0,1fr) 90px;gap:10px}}
 @media(max-width:760px){.promos h2{font-size:clamp(30px,9vw,56px);overflow-wrap:anywhere}}
 .hero-art .photo-frame.branded-hero{transform:none}
 .hero-art .sun-lines{display:none}
