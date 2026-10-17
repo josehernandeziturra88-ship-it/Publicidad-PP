@@ -1,4 +1,7 @@
 /* Encuadres sobre los afiches originales: sin recrear los productos ni el logo. */
+.contact .contact-mark{width:240px;height:240px;right:70px;top:85px;font-size:0;line-height:0;border-radius:50%;background-image:url('assets/1.PNG');background-size:473.684% 592.105%;background-position:12.676% 1.248%;transform:none;opacity:1}
+@media(min-width:761px) and (max-width:1000px){.contact .contact-mark{width:160px;height:160px;right:28px;top:45px}.contact h2{max-width:65%}}
+@media(max-width:760px){.contact .contact-mark{position:static;display:block;width:96px;height:96px;margin:0 0 24px;opacity:1}}
 .playero-logo{display:inline-block;flex:0 0 auto;width:70px;height:70px;border-radius:50%;background-image:url('assets/1.PNG');background-size:473.684% 592.105%;background-position:12.676% 1.248%;vertical-align:middle}
 .header .brand{gap:12px}.footer-name{display:flex;align-items:center;gap:12px}.footer-name .playero-logo{width:44px;height:44px}
 .branded-hero{height:auto;aspect-ratio:4/5;border-radius:20px;transform:rotate(2deg);background:#000}.branded-hero img{object-fit:contain}.hero-art .sun-lines{z-index:-1}.hero-art .stamp{display:none}
