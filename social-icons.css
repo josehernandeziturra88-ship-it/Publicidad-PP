@@ -16,6 +16,22 @@ a[href^="https://www.google.com/maps/"]::before {
 a[href^="https://wa.me/"] { --social-icon: url("assets/icons/whatsapp.svg"); }
 a[href^="https://www.instagram.com/"] { --social-icon: url("assets/icons/instagram.svg"); }
 a[href^="https://www.google.com/maps/"] { --social-icon: url("assets/icons/googlemaps.svg"); }
+a[href^="https://wa.me/"]::before {
+  background: #128c4a;
+}
+a[href^="https://www.instagram.com/"]::before {
+  background: linear-gradient(35deg, #feda75 0%, #fa7e1e 24%, #d62976 52%, #962fbf 76%, #4f5bd5 100%);
+}
+a[href^="https://www.google.com/maps/"]::before {
+  background: conic-gradient(from -45deg at 50% 35%, #4285f4 0deg 90deg, #34a853 90deg 190deg, #fbbc04 190deg 270deg, #ea4335 270deg 315deg, #4285f4 315deg);
+}
+.contact .instagram-contact {
+  display: inline-block;
+  padding: 10px 14px;
+  color: #203b2d;
+  background: #fff9e8;
+  border-radius: 8px;
+}
 .button[href^="https://wa.me/"],
 .button[href^="https://www.instagram.com/"],
 .button[href^="https://www.google.com/maps/"] { gap: .5em; }
