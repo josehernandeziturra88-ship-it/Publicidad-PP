@@ -1,4 +1,8 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.flavors-dialog .flavors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:22px}
+.flavors-dialog .flavors li{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;text-align:center;padding:12px 6px;border-radius:12px;font-size:12px;line-height:1.5}
+.fruit-icon{display:block;flex-shrink:0;width:90px;height:90px;max-width:100%;background-image:url('assets/iconos-sabores.png');background-size:400% 200%;background-repeat:no-repeat}
+@media(max-width:540px){.flavors-dialog .flavors{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fruit-icon{width:100px;height:100px}}
 .menu-grid{align-items:stretch}.menu-category{min-width:0}.menu-category h3{min-height:34px}
 .flavors-trigger{margin-top:4px;font-size:13px;padding:13px 18px}
 .flavors-dialog{width:min(600px,calc(100% - 32px));max-height:90vh;max-height:90dvh;overflow:auto;border:1px solid #fff6dc55;border-radius:18px;padding:24px;background:#111;color:#fff6dc}
