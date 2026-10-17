@@ -1,5 +1,11 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
-.location-map-reference{display:block;margin:22px 0 24px}.location-map-reference img{display:block;width:100%;height:auto;border-radius:12px}.location-map-reference span{display:block;margin-top:10px;font-size:11px;line-height:1.6;text-decoration:underline}
+.location-card{display:grid;grid-template-columns:minmax(0,1fr) 112px;column-gap:20px;align-items:start}
+.location-card>.location-label,.location-card>address,.location-card>p{grid-column:1}
+.location-map-reference{display:block;grid-column:2;grid-row:1 / span 3;align-self:center;width:112px;margin:0}
+.location-map-reference img{display:block;width:112px;height:112px;object-fit:contain;border-radius:9px}
+.location-map-reference span{display:block;margin-top:7px;font-size:10px;line-height:1.5;text-decoration:underline}
+.location-card>.button{grid-column:1 / -1;justify-self:start;margin-top:8px}
+@media(max-width:440px){.location-card{grid-template-columns:minmax(0,1fr) 84px;column-gap:14px}.location-map-reference{width:84px}.location-map-reference img{width:84px;height:84px}.location-map-reference span{font-size:9px}}
 .grocery-layered .grocery-base{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,4.167% 65.234%,16.927% 65.234%,17.773% 93.652%,4.167% 95.703%,4.167% 65.234%,0 0)}
 .grocery-milk-layer{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
 .grocery-products.grocery-layered{position:relative;max-height:none;isolation:isolate}
