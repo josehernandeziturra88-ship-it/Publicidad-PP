@@ -1,7 +1,7 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
-.promo-card .combo-one-photo{width:calc(100% + 48px);margin-left:-24px;margin-right:-24px}
+.promo-card .dish-photo.combo-one-photo{width:calc(100% + 48px);margin-left:-24px;margin-right:-24px}
 .combo-one-photo img{display:block;width:100%;height:100%;object-fit:contain}
-@media(max-width:950px){.promo-card .combo-one-photo{width:calc(100% + 56px);margin-left:-28px;margin-right:-28px}}
+@media(max-width:950px){.promo-card .dish-photo.combo-one-photo{width:calc(100% + 56px);margin-left:-28px;margin-right:-28px}}
 .catalog-heading{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:center;gap:40px;margin-bottom:30px}
 .catalog-heading-copy{min-width:0}.catalog-heading h2{font-size:clamp(38px,4.4vw,65px)}
 .catalog-heading-copy>p:not(.eyebrow){font-size:14px;line-height:1.8;max-width:540px}
