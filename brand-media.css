@@ -1,4 +1,11 @@
-/* Encuadres sobre los afiches originales: sin recrear los productos ni el logo. */
+/* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+@media(max-width:760px){.promos h2{font-size:clamp(30px,9vw,56px);overflow-wrap:anywhere}}
+.hero-art .photo-frame.branded-hero{transform:none}
+.hero-art .sun-lines{display:none}
+.promo-card .dish-photo{width:100%;height:235px;aspect-ratio:auto;margin:12px 0 22px;background:none;display:flex;align-items:center;justify-content:center}
+.dish-cutout{display:block;width:100%;height:100%;max-width:310px;overflow:hidden;flex-shrink:0}
+.promo-card .card-brand{display:none}
+@media(max-width:760px){.promo-card .dish-photo{height:245px}.dish-cutout{max-height:245px}}
 .contact .contact-mark{width:240px;height:240px;right:70px;top:85px;font-size:0;line-height:0;border-radius:50%;background-image:url('assets/1.PNG');background-size:473.684% 592.105%;background-position:12.676% 1.248%;transform:none;opacity:1}
 @media(min-width:761px) and (max-width:1000px){.contact .contact-mark{width:160px;height:160px;right:28px;top:45px}.contact h2{max-width:65%}}
 @media(max-width:760px){.contact .contact-mark{position:static;display:block;width:96px;height:96px;margin:0 0 24px;opacity:1}}
