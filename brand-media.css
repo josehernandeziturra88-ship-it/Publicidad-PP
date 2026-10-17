@@ -1,4 +1,14 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.contact.contact-compact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);align-items:center;gap:32px;padding-top:30px;padding-bottom:30px}
+.contact.contact-compact h2{font-size:clamp(36px,4vw,50px);line-height:1;letter-spacing:-1.5px;max-width:none;margin:0 0 18px}
+.contact-compact .visit-invitation{font-size:14px;margin:0 0 5px}.contact-compact .visit-hours{font-size:15px;line-height:1.7;margin:0}.visit-hours span{font-size:13px}
+.contact-follow{display:grid;grid-template-columns:minmax(0,1fr) 78px;align-items:center;gap:10px 20px}
+.contact-follow h3{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-size:34px;line-height:1.05;text-transform:uppercase;margin:0 0 10px;letter-spacing:-.5px}.contact-follow p{font-size:14px;line-height:1.7;margin:0;max-width:280px}
+.follow-instagram-button{display:flex;justify-content:center;align-items:center;width:78px;height:78px;border-radius:18px;background:#fff9e8;transition:transform .2s}
+.contact-follow .follow-instagram-button::before{display:block;width:46px;height:46px;flex-basis:46px;margin:0;vertical-align:baseline}
+.follow-instagram-button:hover{transform:translateY(-2px)}.follow-instagram-button:focus-visible{outline:3px solid #ffe500;outline-offset:5px}.follow-instagram-handle{grid-column:1 / -1;font-size:12px;opacity:.9}
+@media(max-width:760px){.contact.contact-compact{grid-template-columns:1fr;gap:24px;padding-top:26px;padding-bottom:26px}.contact.contact-compact h2{font-size:40px}.contact-follow{gap:10px 16px;grid-template-columns:minmax(0,1fr) 64px}.contact-follow h3{font-size:30px}.follow-instagram-button{width:64px;height:64px;border-radius:15px}.contact-follow .follow-instagram-button::before{width:38px;height:38px;flex-basis:38px}}
+@media(prefers-reduced-motion:reduce){.follow-instagram-button{transition:none}}
 .hero-copy .intro{font-size:18px;line-height:1.8}
 .hero-copy .hero-quisco-title{font-size:clamp(48px,4.8vw,68px);line-height:.98;letter-spacing:-2px;overflow-wrap:normal}
 .hero-title-emoji{display:inline-block;font-size:.48em;letter-spacing:0;white-space:nowrap;vertical-align:middle}
