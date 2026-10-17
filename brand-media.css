@@ -1,4 +1,5 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.location-map-reference{display:block;margin:22px 0 24px}.location-map-reference img{display:block;width:100%;height:auto;border-radius:12px}.location-map-reference span{display:block;margin-top:10px;font-size:11px;line-height:1.6;text-decoration:underline}
 .grocery-layered .grocery-base{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,4.167% 65.234%,16.927% 65.234%,17.773% 93.652%,4.167% 95.703%,4.167% 65.234%,0 0)}
 .grocery-milk-layer{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
 .grocery-products.grocery-layered{position:relative;max-height:none;isolation:isolate}
