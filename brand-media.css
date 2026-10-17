@@ -1,5 +1,5 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
-.product-ticker{padding:15px 0;overflow:hidden;background:transparent;color:#fff}
+.product-ticker{padding:15px 0;overflow:hidden;background:transparent;color:#ffe500}
 .product-ticker>.product-ticker-track{display:flex;justify-content:flex-start;align-items:center;width:max-content;gap:0;animation:playero-products-scroll 85s linear infinite}
 .product-ticker-list{display:flex;align-items:center;gap:0;list-style:none;margin:0;padding:0;flex-shrink:0}
 .product-ticker-list li{display:flex;align-items:center;gap:28px;padding-right:28px;white-space:nowrap;text-transform:uppercase;font-size:25px;line-height:1.2;font-weight:700}
