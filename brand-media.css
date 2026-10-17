@@ -1,4 +1,7 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.hero-copy .hero-quisco-title{font-size:clamp(56px,5.6vw,80px);line-height:.98;letter-spacing:-2px;overflow-wrap:normal}
+.hero-title-emoji{display:inline-block;font-size:.48em;letter-spacing:0;white-space:nowrap;vertical-align:middle}
+@media(max-width:760px){.hero-copy .hero-quisco-title{font-size:clamp(46px,11vw,76px);letter-spacing:-1.5px}}
 .hero-copy .hero-specialty{font-size:14px;letter-spacing:1.2px;line-height:1.6;font-weight:800;text-transform:uppercase}
 @media(max-width:760px){.hero-copy .hero-specialty{font-size:13px}}
 .hero-art .art-caption{justify-content:center;text-align:center;font-size:16px;font-weight:700;letter-spacing:1.2px;line-height:1.5;margin-top:18px;text-transform:uppercase}
