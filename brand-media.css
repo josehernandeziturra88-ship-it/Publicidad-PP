@@ -1,4 +1,14 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.product-ticker{padding:15px 0;overflow:hidden;background:#ffe500;color:#080808}
+.product-ticker>.product-ticker-track{display:flex;justify-content:flex-start;align-items:center;width:max-content;gap:0;animation:playero-products-scroll 85s linear infinite}
+.product-ticker-list{display:flex;align-items:center;gap:0;list-style:none;margin:0;padding:0;flex-shrink:0}
+.product-ticker-list li{display:flex;align-items:center;gap:28px;padding-right:28px;white-space:nowrap;text-transform:uppercase;font-size:25px;line-height:1.2;font-weight:700}
+.product-ticker .ticker-logo{display:inline-block;width:38px;height:38px;flex:0 0 38px}
+.product-ticker:hover .product-ticker-track,.product-ticker:focus-within .product-ticker-track{animation-play-state:paused}
+.product-ticker:focus-visible{outline:3px solid #fff6dc;outline-offset:3px}
+@keyframes playero-products-scroll{to{transform:translateX(-50%)}}
+@media(max-width:760px){.product-ticker-list li{font-size:22px;gap:20px;padding-right:20px}.product-ticker .ticker-logo{width:32px;height:32px;flex-basis:32px}}
+@media(prefers-reduced-motion:reduce){.product-ticker>.product-ticker-track{animation:none}.product-ticker{overflow-x:auto}.product-ticker-list[aria-hidden="true"]{display:none}}
 .catalog .brands-window{border:0}
 .catalog .icecream-varieties{margin-bottom:16px}.catalog .brands-window{margin-bottom:0}.catalog{padding-bottom:45px}
 .location-card{display:grid;grid-template-columns:minmax(0,1fr) 112px;column-gap:20px;align-items:start}
