@@ -27,4 +27,4 @@ La portada, los jugos, el logo y Savory utilizan los archivos subidos por el usu
 
 La web no procesa pagos ni confirma pedidos automáticamente. Los pedidos y consultas se realizan por WhatsApp o Instagram. Generar estos archivos no publica el sitio ni crea un dominio público.
 
-La sección de helados presenta una franja animada con 24 marcas, usando los logos de las cartas originales mediante encuadres SVG. El movimiento se puede pausar y respeta la preferencia de movimiento reducido. Las dos cartas se muestran al abrir «Ver variedades», mediante un desplegable nativo que funciona sin JavaScript.
+La sección de helados presenta una franja animada con 24 marcas. Los logos se aislaron a partir de las cartas con la herramienta de imágenes y se muestran desde `assets/marcas-helados-sin-fondo.png`, sin fondos rectangulares. El movimiento se puede pausar y respeta la preferencia de movimiento reducido. Las dos cartas se muestran al abrir «Ver variedades», mediante un desplegable nativo que funciona sin JavaScript.
