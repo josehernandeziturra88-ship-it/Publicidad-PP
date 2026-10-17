@@ -10,7 +10,7 @@ Abre `index.html` en un navegador, o ejecuta desde esta carpeta:
 python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
-No necesita instalar dependencias. Para publicar, sube `index.html` y `styles.css` juntos a un hosting estático con HTTPS, manteniéndolos en la misma carpeta.
+No necesita instalar dependencias. Publicación automática con GitHub Pages desde `main`. Para otro hosting estático, incluye `index.html`, los tres archivos CSS y la carpeta `assets`, conservando sus rutas.
 
 ## Datos utilizados
 
@@ -23,6 +23,6 @@ No necesita instalar dependencias. Para publicar, sube `index.html` y `styles.cs
 
 ## Imágenes y fuentes
 
-La portada utiliza una fotografía de referencia de Unsplash, identificada en la página. No representa una fotografía confirmada del local. Las imágenes y logotipos adjuntos en la conversación no están incorporados como archivos locales. La fuente se carga desde Google Fonts, con alternativas del sistema. Se requiere conexión para cargar estos recursos externos.
+La portada, las seis promociones, los jugos, el logo y la sección Savory utilizan archivos originales subidos por el usuario a `assets`. Los encuadres de productos y logo se hacen con CSS sobre los afiches, sin alterar sus originales. Las cartas Savory se muestran completas y se pueden ampliar; sus precios no están completados y se consultan por WhatsApp. No hay fotos individuales para las otras categorías del menú. La fuente se carga desde Google Fonts, con alternativas del sistema.
 
 La web no procesa pagos ni confirma pedidos automáticamente. Los pedidos y consultas se realizan por WhatsApp o Instagram. Generar estos archivos no publica el sitio ni crea un dominio público.
