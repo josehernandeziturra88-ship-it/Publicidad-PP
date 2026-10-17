@@ -1,4 +1,6 @@
 /* Logo del afiche original y fotografías con fondo eliminado para las tarjetas. */
+.hero-copy .hero-specialty{font-size:14px;letter-spacing:1.2px;line-height:1.6;font-weight:800;text-transform:uppercase}
+@media(max-width:760px){.hero-copy .hero-specialty{font-size:13px}}
 .hero-art .art-caption{justify-content:center;text-align:center;font-size:16px;font-weight:700;letter-spacing:1.2px;line-height:1.5;margin-top:18px;text-transform:uppercase}
 @media(max-width:760px){.hero-art .art-caption{font-size:15px}}
 .product-ticker{padding:15px 0;overflow:hidden;background:transparent;color:#ffe500}
