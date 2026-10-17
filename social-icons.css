@@ -1,0 +1,22 @@
+/* Iconos locales de Simple Icons. Los enlaces conservan su texto accesible. */
+a[href^="https://wa.me/"]::before,
+a[href^="https://www.instagram.com/"]::before,
+a[href^="https://www.google.com/maps/"]::before {
+  content: "";
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  flex: 0 0 1.25em;
+  margin-right: .5em;
+  vertical-align: -.22em;
+  background-color: currentColor;
+  -webkit-mask: var(--social-icon) center / contain no-repeat;
+  mask: var(--social-icon) center / contain no-repeat;
+}
+a[href^="https://wa.me/"] { --social-icon: url("assets/icons/whatsapp.svg"); }
+a[href^="https://www.instagram.com/"] { --social-icon: url("assets/icons/instagram.svg"); }
+a[href^="https://www.google.com/maps/"] { --social-icon: url("assets/icons/googlemaps.svg"); }
+.button[href^="https://wa.me/"],
+.button[href^="https://www.instagram.com/"],
+.button[href^="https://www.google.com/maps/"] { gap: .5em; }
+.button[href]::before { margin-right: 0; }
