@@ -1,0 +1,52 @@
+EL POLLO PLAYERO · ARCHIVOS PARA EDITAR EN CANVA
+
+QUÉ ABRIR
+
+playero-carrusel-editable.pptx
+Seis láminas verticales 4:5. Contiene 64 textos separados, bloques de color e imágenes independientes. No es un PPTX con una imagen completa pegada por página.
+
+playero-reel-escenas-editables.pptx
+Ocho escenas verticales 9:16 del video revisado. Contiene 123 textos separados, formas y fotografías/capturas independientes. Es la base editable para reconstruir el movimiento dentro de Canva.
+
+CÓMO IMPORTAR
+
+Si descargaste el kit ZIP, descomprímelo primero. En Canva se importa un PPTX, no el ZIP completo.
+
+1. Abre Canva, preferiblemente desde el navegador en un computador.
+2. En el inicio busca Subir o Importar archivo y elige uno de los PPTX. Espera a que Canva lo convierta en un diseño.
+3. Abre el diseño importado. Haz doble clic en un título para editar el texto. Puedes seleccionar, mover y cambiar los colores de los bloques y reemplazar fotografías o capturas.
+4. Revisa fuentes, saltos de línea y alineación después de importar. La conversión puede ajustar ligeramente la apariencia. Busca Barlow Condensed y DM Sans para mantener el estilo. También se incluyen las fuentes originales y sus licencias; cargarlas como fuentes propias depende de las funciones disponibles en tu cuenta de Canva.
+5. Si quieres el carrusel, descarga las seis páginas como PNG.
+6. Si quieres el video, aplica Animar a páginas y elementos, configura las duraciones y descarga como video MP4. Si Canva abre el archivo como presentación, utiliza su edición de video si está disponible o copia las páginas a un diseño de video vertical de la misma proporción.
+
+DURACIONES DEL REEL
+
+Escena 1 · Estrenamos web: 3 segundos.
+Escena 2 · Cómo acceder: 6 segundos.
+Escena 3 · Promociones: 5 segundos.
+Escena 4 · Menú: 5 segundos.
+Escena 5 · Cómo pedir por WhatsApp: 6 segundos.
+Escena 6 · Ubicación: 4 segundos.
+Escena 7 · Instagram: 5 segundos.
+Escena 8 · Cierre y dirección web: 6 segundos.
+Total sugerido: 40 segundos.
+
+Las duraciones están anotadas en las notas del PPTX, pero debes confirmarlas dentro de Canva. La animación original, la escritura de la URL, el movimiento del cursor y el desplazamiento de la web NO se transfieren automáticamente al importar un PPTX. Puedes recrearlos o usar animaciones de Canva.
+
+MÚSICA Y REFERENCIA
+
+musica-original.mp3 es la base instrumental original para agregar a tu línea de tiempo.
+referencia-video.mp4 es el video ya renderizado para comparar o usar como un clip. Puedes recortarlo, cambiar audio y superponer elementos, pero sus textos originales no se pueden seleccionar ni reescribir dentro de ese clip.
+
+QUÉ ES EDITABLE
+
+- Títulos, instrucciones, dominio, nombre de Instagram y dirección fuera de capturas: cuadros de texto.
+- Fondos, botones y tarjetas: formas separadas.
+- Logo, fotos, mapa e iconos: imágenes que puedes mover, cambiar de tamaño o reemplazar.
+- También se entregan SVG de WhatsApp e Instagram para reutilizarlos como recursos.
+
+Los textos, precios y botones que aparecen DENTRO de las capturas de pantalla siguen formando parte de esas imágenes. Para cambiarlos, actualiza la página correspondiente, toma una captura nueva y reemplaza la imagen en Canva.
+
+Editar estos diseños publicitarios en Canva no modifica el contenido de tu página web.
+
+No se ha creado ni importado un diseño dentro de tu cuenta de Canva desde esta conversación. Estos archivos están preparados para que los importes tú. No necesitas compartir contraseñas.
