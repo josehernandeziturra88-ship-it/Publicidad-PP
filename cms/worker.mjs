@@ -1,6 +1,6 @@
 import defaults from '../content/default.json' with {type:'json'};
 import {validateDocument,MAX_IMAGE_BYTES,MAX_DOCUMENT_BYTES} from '../content/schema.js';
-import {authenticate} from './auth.mjs';
+import {authenticate,AccessError} from './auth.mjs';
 
 const schema=[
  'CREATE TABLE IF NOT EXISTS site_content (id INTEGER PRIMARY KEY CHECK(id=1),document TEXT NOT NULL,revision INTEGER NOT NULL DEFAULT 1,updated_at TEXT NOT NULL)',
@@ -31,7 +31,7 @@ export function createWorker({assets={},loadKeys=undefined}={}){
   }
   if(path==='/')return Response.redirect(url.origin+'/admin/',302);
   if(path==='/admin'||path.startsWith('/admin/')){
-   let identity;try{identity=await authenticate(request,env,loadKeys)}catch{throw new HttpError(401,'Inicia sesión con tu correo autorizado. Si aún no aparece el inicio de sesión, falta activar el acceso privado en Cloudflare.');}
+   let identity;try{identity=await authenticate(request,env,loadKeys)}catch(e){return json({error:e instanceof AccessError?e.message:'No se pudo validar la sesión. Vuelve a iniciar sesión.',code:e instanceof AccessError?e.code:'AUTH_FAILED'},401);}
    if(!path.startsWith('/admin/api/')){
     if(request.method!=='GET')throw new HttpError(405,'Método no permitido.');const key=(path==='/admin'||path==='/admin/')?'/admin/index.html':path;const asset=assets[key];if(!asset)throw new HttpError(404,'Página no encontrada.');return new Response(asset.body,{headers:{...security,'Content-Type':asset.type,'Cache-Control':'no-store','Content-Security-Policy':csp}});
    }

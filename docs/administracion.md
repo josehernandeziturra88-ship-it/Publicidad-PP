@@ -15,6 +15,21 @@ La guía para el propietario está en `/configurar/panel.html`. El archivo `conf
 
 Los valores de Access se obtienen de la aplicación real. `ADMIN_EMAILS` debe configurarse en Cloudflare, preferentemente como secreto. No guardar datos de acceso en este repositorio. Crear una aplicación Access sin configurar las variables del Worker no habilita la edición; el servidor falla cerrado.
 
+### Si Access permite ingresar pero el panel rechaza la sesión
+
+Las respuestas de acceso rechazado incluyen un `code` y un mensaje sin datos de la sesión. No solicitar ni compartir el JWT, cookies o códigos de ingreso. Los códigos permiten revisar la configuración sin desactivar ninguna comprobación:
+
+- `CONFIG_TEAM`, `CONFIG_AUD`, `CONFIG_EMAILS`: falta o es inválida la variable indicada.
+- `NO_ASSERTION`: el Worker no recibió la cabecera de Access; revisar el dominio personalizado y la ruta `admin` en minúsculas, con sus subrutas.
+- `KEYS_UNAVAILABLE`: no se pudieron consultar las claves del equipo; comprobar el dominio y su disponibilidad.
+- `TOKEN_KEY` o `ISSUER_MISMATCH`: el equipo configurado no corresponde a la sesión.
+- `AUDIENCE_MISMATCH`: copiar de nuevo el AUD completo de esta aplicación Access a `ACCESS_AUD`.
+- `EMAIL_NOT_ALLOWED`: el correo del ingreso debe estar incluido en `ADMIN_EMAILS`.
+- `TOKEN_TIME`: iniciar una nueva sesión.
+- `TOKEN_FORMAT`, `TOKEN_SIGNATURE` o `AUTH_FAILED`: revisar que la petición pase por Access y solicitar un nuevo ingreso; no omitir la validación.
+
+Si todavía aparece el mensaje genérico antiguo, actualizar el código del Worker desde `/configurar/playero-worker.js` y desplegar. El código no contiene las variables de la cuenta y no modifica la base de datos. Al copiar los valores se toleran espacios y saltos de línea al principio y final del dominio y AUD; la audiencia sigue comparándose de forma exacta después de quitar esos espacios.
+
 La primera lectura crea las tablas y copia `content/default.json` si aún no hay datos. Las publicaciones posteriores incrementan una revisión de forma atómica. Un documento basado en una versión antigua recibe HTTP 409 y no sobrescribe cambios. Se conservan 20 versiones anteriores en D1 y el panel permite descargar el documento en JSON.
 
 Las imágenes se guardan como blobs D1 inmutables de hasta 1.500.000 bytes. Solo se aceptan JPEG, PNG, WebP y GIF con comprobación de firma y tipo. No se admiten SVG subidos. El navegador convierte las imágenes a WebP antes de subirlas. Los nombres de imágenes son UUID y las respuestas llevan `nosniff`, tipo explícito y CSP. La biblioteca tiene un límite de 300 entradas; no se ofrece borrado automático para conservar referencias de respaldos y sesiones en edición.

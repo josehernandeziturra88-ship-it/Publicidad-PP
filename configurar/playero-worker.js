@@ -105,14 +105,29 @@ function validateDocument(input) {
 // cms/auth.mjs
 var cache = /* @__PURE__ */ new Map();
 var decoder = new TextDecoder();
+var AccessError = class extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
+};
+var fail = (code, message) => {
+  throw new AccessError(code, message);
+};
 function decode64(s) {
-  if (typeof s !== "string" || !/^[A-Za-z0-9_-]+$/.test(s)) throw new Error("Sesi\xF3n inv\xE1lida.");
+  if (typeof s !== "string" || !/^[A-Za-z0-9_-]+$/.test(s)) fail("TOKEN_FORMAT", "Sesi\xF3n inv\xE1lida.");
   return Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - s.length % 4) % 4)), (c) => c.charCodeAt(0));
 }
 function accessIssuer(team) {
-  if (typeof team !== "string") throw new Error("Falta configurar el acceso privado.");
-  const url = new URL(team.startsWith("https://") ? team : "https://" + team);
-  if (url.protocol !== "https:" || !/^[a-z0-9][a-z0-9-]*\.cloudflareaccess\.com$/.test(url.hostname) || url.username || url.password || url.port || url.search || url.hash || url.pathname !== "/") throw new Error("Configuraci\xF3n de acceso inv\xE1lida.");
+  if (typeof team !== "string" || !team.trim()) fail("CONFIG_TEAM", "Revisa ACCESS_TEAM_DOMAIN en el Worker.");
+  team = team.trim();
+  let url;
+  try {
+    url = new URL(team.startsWith("https://") ? team : "https://" + team);
+  } catch {
+    fail("CONFIG_TEAM", "Revisa ACCESS_TEAM_DOMAIN en el Worker.");
+  }
+  if (url.protocol !== "https:" || !/^[a-z0-9][a-z0-9-]*\.cloudflareaccess\.com$/.test(url.hostname) || url.username || url.password || url.port || url.search || url.hash || url.pathname !== "/") fail("CONFIG_TEAM", "Revisa ACCESS_TEAM_DOMAIN en el Worker.");
   return url.origin;
 }
 async function remoteKeys(issuer, refresh = false) {
@@ -127,26 +142,50 @@ async function remoteKeys(issuer, refresh = false) {
 }
 async function authenticate(request, env, loadKeys = remoteKeys) {
   const issuer = accessIssuer(env.ACCESS_TEAM_DOMAIN);
-  if (typeof env.ACCESS_AUD !== "string" || !env.ACCESS_AUD.trim() || typeof env.ADMIN_EMAILS !== "string" || !env.ADMIN_EMAILS.trim()) throw new Error("Falta configurar el acceso privado.");
+  if (typeof env.ACCESS_AUD !== "string" || !env.ACCESS_AUD.trim()) fail("CONFIG_AUD", "Falta configurar ACCESS_AUD en el Worker.");
+  const expectedAudience = env.ACCESS_AUD.trim();
+  const allowed = typeof env.ADMIN_EMAILS === "string" ? env.ADMIN_EMAILS.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean) : [];
+  if (!allowed.length) fail("CONFIG_EMAILS", "Falta configurar ADMIN_EMAILS en el Worker.");
   const token = request.headers.get("Cf-Access-Jwt-Assertion");
-  if (!token || token.length > 16e3) throw new Error("Inicia sesi\xF3n con tu correo autorizado.");
+  if (!token) fail("NO_ASSERTION", "Cloudflare no envi\xF3 la sesi\xF3n. Revisa el dominio y la ruta admin de la aplicaci\xF3n Access.");
+  if (token.length > 16e3) fail("TOKEN_FORMAT", "Sesi\xF3n inv\xE1lida.");
   const parts = token.split(".");
-  if (parts.length !== 3) throw new Error("Sesi\xF3n inv\xE1lida.");
-  const head = JSON.parse(decoder.decode(decode64(parts[0]))), claims = JSON.parse(decoder.decode(decode64(parts[1])));
-  if (head.alg !== "RS256" || typeof head.kid !== "string" || head.kid.length > 200) throw new Error("Sesi\xF3n inv\xE1lida.");
-  let keys = await loadKeys(issuer), key = keys.find((k) => k.kid === head.kid && k.kty === "RSA");
-  if (!key) {
-    keys = await loadKeys(issuer, true);
-    key = keys.find((k) => k.kid === head.kid && k.kty === "RSA");
+  if (parts.length !== 3) fail("TOKEN_FORMAT", "Sesi\xF3n inv\xE1lida.");
+  let head, claims;
+  try {
+    head = JSON.parse(decoder.decode(decode64(parts[0])));
+    claims = JSON.parse(decoder.decode(decode64(parts[1])));
+  } catch {
+    fail("TOKEN_FORMAT", "Sesi\xF3n inv\xE1lida.");
   }
-  if (!key) throw new Error("Sesi\xF3n inv\xE1lida.");
-  const cryptoKey = await crypto.subtle.importKey("jwk", key, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
-  if (!await crypto.subtle.verify("RSASSA-PKCS1-v1_5", cryptoKey, decode64(parts[2]), new TextEncoder().encode(parts[0] + "." + parts[1]))) throw new Error("Sesi\xF3n inv\xE1lida.");
+  if (!head || !claims || typeof head !== "object" || typeof claims !== "object") fail("TOKEN_FORMAT", "Sesi\xF3n inv\xE1lida.");
+  if (head.alg !== "RS256" || typeof head.kid !== "string" || head.kid.length > 200) fail("TOKEN_SIGNATURE", "La firma de la sesi\xF3n no es v\xE1lida.");
+  let key;
+  try {
+    let keys = await loadKeys(issuer);
+    key = keys.find((k) => k.kid === head.kid && k.kty === "RSA");
+    if (!key) {
+      keys = await loadKeys(issuer, true);
+      key = keys.find((k) => k.kid === head.kid && k.kty === "RSA");
+    }
+  } catch {
+    fail("KEYS_UNAVAILABLE", "No se pudieron consultar las claves p\xFAblicas del equipo. Revisa ACCESS_TEAM_DOMAIN.");
+  }
+  if (!key) fail("TOKEN_KEY", "La sesi\xF3n no corresponde a las claves del equipo. Revisa ACCESS_TEAM_DOMAIN.");
+  let verified = false;
+  try {
+    const cryptoKey = await crypto.subtle.importKey("jwk", key, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+    verified = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", cryptoKey, decode64(parts[2]), new TextEncoder().encode(parts[0] + "." + parts[1]));
+  } catch {
+    fail("TOKEN_SIGNATURE", "La firma de la sesi\xF3n no es v\xE1lida.");
+  }
+  if (!verified) fail("TOKEN_SIGNATURE", "La firma de la sesi\xF3n no es v\xE1lida.");
   const now = Math.floor(Date.now() / 1e3), aud = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-  if (claims.iss !== issuer || !aud.includes(env.ACCESS_AUD) || !Number.isFinite(claims.exp) || claims.exp <= now || !Number.isFinite(claims.iat) || claims.iat > now + 60 || claims.nbf !== void 0 && (!Number.isFinite(claims.nbf) || claims.nbf > now + 60)) throw new Error("Tu sesi\xF3n venci\xF3. Vuelve a iniciar sesi\xF3n.");
+  if (claims.iss !== issuer) fail("ISSUER_MISMATCH", "El equipo de la sesi\xF3n no coincide con ACCESS_TEAM_DOMAIN.");
+  if (!aud.includes(expectedAudience)) fail("AUDIENCE_MISMATCH", "El identificador de la aplicaci\xF3n no coincide con ACCESS_AUD.");
+  if (!Number.isFinite(claims.exp) || claims.exp <= now || !Number.isFinite(claims.iat) || claims.iat > now + 60 || claims.nbf !== void 0 && (!Number.isFinite(claims.nbf) || claims.nbf > now + 60)) fail("TOKEN_TIME", "La sesi\xF3n venci\xF3 o todav\xEDa no es v\xE1lida. Vuelve a iniciar sesi\xF3n.");
   const email = typeof claims.email === "string" ? claims.email.toLowerCase() : "";
-  const allowed = env.ADMIN_EMAILS.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-  if (!allowed.includes(email)) throw new Error("Este correo no tiene permiso para administrar la web.");
+  if (!allowed.includes(email)) fail("EMAIL_NOT_ALLOWED", "El correo usado para ingresar no est\xE1 autorizado en ADMIN_EMAILS.");
   return { email };
 }
 
@@ -252,8 +291,8 @@ function createWorker({ assets = {}, loadKeys = void 0 } = {}) {
         let identity;
         try {
           identity = await authenticate(request, env, loadKeys);
-        } catch {
-          throw new HttpError(401, "Inicia sesi\xF3n con tu correo autorizado. Si a\xFAn no aparece el inicio de sesi\xF3n, falta activar el acceso privado en Cloudflare.");
+        } catch (e) {
+          return json({ error: e instanceof AccessError ? e.message : "No se pudo validar la sesi\xF3n. Vuelve a iniciar sesi\xF3n.", code: e instanceof AccessError ? e.code : "AUTH_FAILED" }, 401);
         }
         if (!path.startsWith("/admin/api/")) {
           if (request.method !== "GET") throw new HttpError(405, "M\xE9todo no permitido.");
