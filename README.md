@@ -1,5 +1,15 @@
 # El Pollo Playero
 
+## Administración del contenido
+
+El panel y su API están preparados para un Worker con D1 y Cloudflare Access. La activación en la cuenta de Cloudflare se realiza siguiendo [la guía del propietario](configurar/panel.html). El archivo autocontenido del servicio se encuentra en `configurar/playero-worker.js`.
+
+Acceso previsto: `https://elpolloplayero.cl/admin/`, que enlaza con el panel privado en `https://gestion.elpolloplayero.cl/admin/`. El panel permite editar precios, disponibilidad, productos, promociones, imágenes, horarios y textos, previsualizar sin publicar y descargar una copia de los datos. Los correos autorizados y la configuración de Access se guardan en Cloudflare, no en este repositorio.
+
+Para desarrollo: Node >=22.13, `npm ci`, `npm run build:panel`, `npm run dev`. Pruebas: `npm test` y, con el servidor iniciado y Playwright/Chromium disponibles, `node scripts/check-browser.cjs`. Documentación técnica y límites: [docs/administracion.md](docs/administracion.md).
+
+La web pública mantiene su contenido estático si el nuevo servicio aún no está activado; cuando responde, lee los datos publicados de D1. La activación de un dominio en Cloudflare no crea automáticamente el Worker ni el acceso privado.
+
 Web estática adaptable a celulares. Incluye 6 promociones, menú de comida, jugos naturales, helados Savory, ubicación y contacto.
 
 ## Ver la web

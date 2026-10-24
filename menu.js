@@ -1,8 +1,11 @@
 const flavorsDialog = document.querySelector('#flavors-dialog');
-const flavorsTrigger = document.querySelector('.flavors-trigger');
-if (flavorsDialog && flavorsTrigger && typeof flavorsDialog.showModal === 'function') {
-  flavorsTrigger.addEventListener('click', (event) => {
+let flavorsTrigger = null;
+if (flavorsDialog && typeof flavorsDialog.showModal === 'function') {
+  document.addEventListener('click', (event) => {
+    const trigger = event.target.closest('.flavors-trigger');
+    if (!trigger) return;
     event.preventDefault();
+    flavorsTrigger = trigger;
     flavorsDialog.showModal();
   });
   flavorsDialog.querySelector('.flavors-close').addEventListener('click', () => flavorsDialog.close());
@@ -12,5 +15,5 @@ if (flavorsDialog && flavorsTrigger && typeof flavorsDialog.showModal === 'funct
       flavorsDialog.close();
     }
   });
-  flavorsDialog.addEventListener('close', () => flavorsTrigger.focus());
+  flavorsDialog.addEventListener('close', () => { if (flavorsTrigger?.isConnected) flavorsTrigger.focus(); });
 }

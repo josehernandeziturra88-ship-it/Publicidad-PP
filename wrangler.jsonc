@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "playero-gestion",
+  "main": "cms/entry.mjs",
+  "compatibility_date": "2026-10-24",
+  "workers_dev": true,
+  "vars": { "SITE_ORIGIN": "https://elpolloplayero.cl" }
+}

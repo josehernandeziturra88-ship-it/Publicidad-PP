@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS site_content (
+ id INTEGER PRIMARY KEY CHECK(id = 1),
+ document TEXT NOT NULL,
+ revision INTEGER NOT NULL DEFAULT 1,
+ updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS content_history (
+ revision INTEGER PRIMARY KEY,
+ document TEXT NOT NULL,
+ updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS media (
+ id TEXT PRIMARY KEY,
+ mime TEXT NOT NULL,
+ bytes BLOB NOT NULL,
+ size INTEGER NOT NULL CHECK(size > 0 AND size <= 1500000),
+ created_at TEXT NOT NULL
+);
