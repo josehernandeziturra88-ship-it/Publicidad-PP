@@ -133,7 +133,7 @@ function accessIssuer(team) {
 async function remoteKeys(issuer, refresh = false) {
   const hit = cache.get(issuer);
   if (!refresh && hit && hit.until > Date.now()) return hit.keys;
-  const response = await fetch(issuer + "/cdn-cgi/access/certs", { redirect: "error", signal: AbortSignal.timeout(7e3) });
+  const response = await fetch(issuer + "/cdn-cgi/access/certs", { redirect: "manual", signal: AbortSignal.timeout(7e3) });
   if (!response.ok) throw new Error("No se pudo verificar la sesi\xF3n.");
   const json2 = await response.json();
   if (!Array.isArray(json2.keys) || json2.keys.length > 20) throw new Error("No se pudo verificar la sesi\xF3n.");

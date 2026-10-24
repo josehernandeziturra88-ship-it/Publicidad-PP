@@ -30,6 +30,8 @@ Las respuestas de acceso rechazado incluyen un `code` y un mensaje sin datos de 
 
 Si todavía aparece el mensaje genérico antiguo, actualizar el código del Worker desde `/configurar/playero-worker.js` y desplegar. El código no contiene las variables de la cuenta y no modifica la base de datos. Al copiar los valores se toleran espacios y saltos de línea al principio y final del dominio y AUD; la audiencia sigue comparándose de forma exacta después de quitar esos espacios.
 
+La consulta JWKS usa `redirect: 'manual'` y rechaza respuestas que no sean exitosas. Workers no admite `redirect: 'error'`: esa opción lanza un `TypeError` incluso antes de realizar la consulta. La prueba `tests/access-runtime.test.mjs` ejecuta el ingreso real en workerd contra claves RSA de prueba servidas por HTTP local, y comprueba también que no se sigan redirecciones. No usa credenciales ni servicios de producción.
+
 La primera lectura crea las tablas y copia `content/default.json` si aún no hay datos. Las publicaciones posteriores incrementan una revisión de forma atómica. Un documento basado en una versión antigua recibe HTTP 409 y no sobrescribe cambios. Se conservan 20 versiones anteriores en D1 y el panel permite descargar el documento en JSON.
 
 Las imágenes se guardan como blobs D1 inmutables de hasta 1.500.000 bytes. Solo se aceptan JPEG, PNG, WebP y GIF con comprobación de firma y tipo. No se admiten SVG subidos. El navegador convierte las imágenes a WebP antes de subirlas. Los nombres de imágenes son UUID y las respuestas llevan `nosniff`, tipo explícito y CSP. La biblioteca tiene un límite de 300 entradas; no se ofrece borrado automático para conservar referencias de respaldos y sesiones en edición.

@@ -17,7 +17,9 @@ export function accessIssuer(team) {
 }
 async function remoteKeys(issuer, refresh=false) {
   const hit=cache.get(issuer);if(!refresh && hit && hit.until>Date.now()) return hit.keys;
-  const response=await fetch(issuer+'/cdn-cgi/access/certs',{redirect:'error',signal:AbortSignal.timeout(7000)});
+  // Workers only supports follow/manual. Reject redirects through the status
+  // check instead of passing the unsupported redirect:'error' option.
+  const response=await fetch(issuer+'/cdn-cgi/access/certs',{redirect:'manual',signal:AbortSignal.timeout(7000)});
   if(!response.ok)throw new Error('No se pudo verificar la sesión.');
   const json=await response.json();if(!Array.isArray(json.keys)||json.keys.length>20)throw new Error('No se pudo verificar la sesión.');
   cache.set(issuer,{keys:json.keys,until:Date.now()+600000});return json.keys;
