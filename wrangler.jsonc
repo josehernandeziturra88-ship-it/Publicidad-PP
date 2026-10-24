@@ -4,5 +4,13 @@
   "main": "cms/entry.mjs",
   "compatibility_date": "2026-10-24",
   "workers_dev": true,
+  "keep_vars": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "playero-admin",
+      "database_id": "c926c8ee-1834-4dae-a9d8-79c5292cbe34"
+    }
+  ],
   "vars": { "SITE_ORIGIN": "https://elpolloplayero.cl" }
 }
