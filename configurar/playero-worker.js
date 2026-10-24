@@ -212,7 +212,7 @@ function mutationOrigin(request) {
   const origin = request.headers.get("Origin");
   if (origin !== new URL(request.url).origin) throw new HttpError(403, "La publicaci\xF3n debe realizarse desde el panel.");
 }
-function createWorker({ assets = {}, loadKeys } = {}) {
+function createWorker({ assets = {}, loadKeys = void 0 } = {}) {
   const initialized = /* @__PURE__ */ new WeakSet();
   async function init(db) {
     if (!db) throw new HttpError(503, "El almacenamiento del panel a\xFAn no est\xE1 configurado.");
