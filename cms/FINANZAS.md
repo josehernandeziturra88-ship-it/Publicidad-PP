@@ -173,3 +173,16 @@ modelo externo ni factura real.
 `node scripts/check-card-picker.cjs` verifica apertura real del selector, toque,
 fallback sin showPicker/createImageBitmap, selector alternativo, arrastrar y
 pegar, con persistencia después de guardar/recargar. Usa el servidor wallet.
+
+## Encuadre y diseño de tarjetas
+
+Las cuentas con imagen usan una superficie con proporción de tarjeta bancaria,
+imagen de fondo y degradado para mantener legibles nombre, banco y saldo.
+Editar permite llenar/mostrar completa, zoom 100–300 %, posición X/Y y giro
+de 90 grados. Solo se guardan parámetros; se conserva el archivo privado original.
+Se validan escala, posiciones, ajuste y rotación en el servidor. Los registros
+anteriores usan valores predeterminados y la imagen existente.
+
+`node scripts/check-card-layout.cjs`, con servidor wallet nuevo, prueba controles,
+giro sin deformación, persistencia, saldos, banco/crédito y límites visuales a
+320/390/1440 px. Sus imágenes y saldos de ejemplo son ficticios.
