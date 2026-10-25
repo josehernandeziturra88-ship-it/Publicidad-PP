@@ -7,8 +7,10 @@
 @media(max-width:600px){.account-surface{padding:18px;gap:16px}.account-card.with-art .account-footer{padding:14px 16px}.account-card.with-art .account-extra{padding:16px 16px 0}.image-crop-controls{grid-template-columns:1fr}.account-surface .account-heading h3{font-size:18px!important}}
 
 .account-heading>div{min-width:0;flex:1}.account-heading p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.account-card.credit .account-balance .balance{font-size:20px;color:var(--yellow);letter-spacing:-.4px}
-.account-card.credit .account-balance .balance-label{font-size:11px;color:var(--yellow)}
-.card-dual{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}.card-dual>div{min-width:0}.card-dual>div:last-child{text-align:right}
+.account-card.credit .account-balance .balance{font-size:20px;color:#ff9797;letter-spacing:-.4px}
+.account-card.credit .account-balance .balance-label{font-size:11px;color:#ff9797}
+.card-dual{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.card-dual>div{min-width:0}.card-dual>div:last-child{text-align:right}
 
 .account-details{min-width:0;margin-right:auto;font-size:11px;color:var(--muted)}.account-details summary{cursor:pointer;padding:8px 0}.account-details summary:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}.account-details .account-extra{padding:12px 0!important}.account-details[open]{width:100%}.account-card.with-art .account-footer{display:grid;grid-template-columns:minmax(0,1fr) auto auto}.account-card.with-art .account-footer>span{overflow-wrap:anywhere}.account-card.with-art .account-details[open]{grid-column:1/-1}.account-card.with-art .account-footer>button:first-of-type{grid-column:2}.account-card.with-art .account-footer>button:last-of-type{grid-column:3}
+
+.credit-metric>strong{color:#fff}.metrics .credit-debt-summary{color:#ff9797;font-size:13px;font-weight:700;margin:4px 0 8px}.metrics .credit-debt-summary.in-favor,.account-card.credit .account-balance.in-favor .balance,.account-card.credit .account-balance.in-favor .balance-label{color:var(--text)}
