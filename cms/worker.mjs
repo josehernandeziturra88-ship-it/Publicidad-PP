@@ -40,7 +40,7 @@ export function createWorker({assets={},loadKeys=undefined}={}){
    await init(env.DB);
    if(path.startsWith('/admin/api/finance/')){
     if(!['GET','HEAD'].includes(request.method))mutationOrigin(request);
-    return await financeRequest(request,env.DB,{json,readLimited,imageMime});
+    return await financeRequest(request,env.DB,{json,readLimited,imageMime,env});
    }
    if(path==='/admin/api/session'&&request.method==='GET')return json({email:identity.email,siteOrigin:new URL(env.SITE_ORIGIN||'https://elpolloplayero.cl').origin});
    if(path==='/admin/api/content'){

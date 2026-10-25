@@ -2,13 +2,13 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Finanzas · El Pollo Playero</title><link rel="stylesheet" href="/admin/admin.css"><link rel="stylesheet" href="/admin/finanzas.css"></head>
 <body class="finance-page">
 <header class="topbar"><a class="brand brand-link" href="/admin/"><span class="logo" aria-hidden="true"></span><div><strong>EL POLLO PLAYERO</strong><span>Administración privada</span></div></a><div class="account"><span id="account-email">Verificando acceso…</span><a href="/cdn-cgi/access/logout">Salir</a></div></header>
-<main><section class="welcome"><div><p class="eyebrow">LAS CUENTAS DE TU LOCAL</p><h1>Tu negocio, en números.</h1><p>Ventas, comprobantes y costos en un solo lugar. Importes en pesos chilenos.</p></div><a class="outline" href="/admin/">← Editar la web</a></section>
-<div class="finance-toolbar"><label class="month-field">Mes del seguimiento<input id="month" type="month" value="2026-11" min="2020-01" max="2099-12"></label><button id="refresh" class="small-button" type="button">Actualizar datos</button><span class="private-label">Acceso exclusivo del propietario</span></div>
+<main><section class="welcome"><div><p class="eyebrow">LAS CUENTAS DE TU LOCAL</p><h1>Compras claras. Costos al día.</h1><p>Separa negocio y casa, guarda facturas y calcula el costo de cada porción.</p></div><a class="outline" href="/admin/cuentas.html">Cuentas y tarjetas ↗</a></section>
+<div class="finance-toolbar"><label class="month-field">Mes del seguimiento<input id="month" type="month" value="2026-10" min="2020-01" max="2099-12"></label><button id="refresh" class="small-button" type="button">Actualizar datos</button><span class="private-label">Acceso exclusivo del propietario</span></div>
 <div id="loading" role="status">Cargando tus registros…</div><div id="fatal" class="notice error" role="alert" hidden></div>
 <div id="finance" hidden>
 <div id="start-note" class="notice"></div>
 <nav class="tabs" aria-label="Secciones de finanzas"><button type="button" data-view="summary" aria-current="page">Resumen</button><button type="button" data-view="sales">Ventas diarias</button><button type="button" data-view="expenses">Gastos y facturas</button><button type="button" data-view="costs">Costos por producto</button></nav>
-<section id="view-summary" class="finance-view" aria-label="Resumen mensual"></section>
+<p class="help"><a href="/admin/">← Editar la web</a> · <a href="/admin/cuentas.html">Dashboard de cuentas, efectivo y tarjetas ↗</a></p><section id="view-summary" class="finance-view" aria-label="Resumen mensual"></section>
 <section id="view-sales" class="finance-view" aria-label="Ventas diarias" hidden></section>
 <section id="view-expenses" class="finance-view" aria-label="Gastos y facturas" hidden></section>
 <section id="view-costs" class="finance-view" aria-label="Costos por producto" hidden></section>

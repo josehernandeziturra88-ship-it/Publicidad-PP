@@ -19,7 +19,7 @@ async function fixture(t){
  return{...identity,db,worker,env,request,call,put,snapshot,ingredient,expense};
 }
 test('Finanzas comienza sin cifras inventadas, usa calendario chileno y distingue cero de un cierre pendiente',()=>{
- assert.equal(SALES_START,'2026-11-01');assert.equal(todayChile(new Date('2026-11-01T01:30:00Z')),'2026-10-31');
+ assert.equal(SALES_START,'2026-10-25');assert.equal(todayChile(new Date('2026-11-01T01:30:00Z')),'2026-10-31');
  const before=summarizeMonth('2026-11',[],[],'2026-10-25');assert.equal(before.missing,0);assert.equal(before.recorded,0);assert.ok(before.days.every(d=>d.status==='future'&&d.total===null));
  const after=summarizeMonth('2026-11',[{date:'2026-11-01',cash:0,card:0,transfer:0,other:0}],[],'2026-11-05');assert.equal(after.recorded,1);assert.equal(after.missing,4);assert.equal(after.days[0].total,0);assert.equal(after.days[1].total,null);assert.equal(after.days[5].status,'future');
  assert.equal(summarizeMonth('2028-02',[],[],'2028-03-01').days.length,29);
@@ -42,7 +42,7 @@ test('Los cierres validan fechas/importes, cuentan cada día una sola vez y evit
  let data=await f.snapshot();assert.equal(data.sales.length,1);assert.equal(summarizeMonth('2026-11',data.sales,data.expenses,data.today).revenue,36000);
  assert.equal((await f.put('sale',doc.date,{...doc,cash:12000},1)).status,200);
  assert.equal((await f.put('sale',doc.date,{...doc,cash:999999},1)).status,409);
- for(const update of [{cash:-1},{cash:1.5},{cash:'1000'},{date:'2026-10-31'},{date:'2026-11-06'},{date:'2026-11-31'}]){const bad={...doc,...update};assert.equal((await f.put('sale',bad.date,bad)).status,400);}
+ for(const update of [{cash:-1},{cash:1.5},{cash:'1000'},{date:'2026-10-24'},{date:'2026-11-06'},{date:'2026-11-31'}]){const bad={...doc,...update};assert.equal((await f.put('sale',bad.date,bad)).status,400);}
  assert.equal((await f.put('sale','2026-11-03',{...doc,date:'2026-11-02'})).status,400);
  const zero={date:'2026-11-02',cash:0,card:0,transfer:0,other:0,notes:'Local cerrado'};assert.equal((await f.put('sale',zero.date,zero)).status,201);
  data=await f.snapshot();const total=summarizeMonth('2026-11',data.sales,[],data.today);assert.equal(total.revenue,38000);assert.equal(total.recorded,2);assert.equal(total.missing,3);
@@ -92,7 +92,7 @@ test('Anular conserva el historial, el export incluye todos los meses y los dato
  assert.equal((await f.call('/expense/'+id,{method:'DELETE',body:{revision:1}})).status,409);
  assert.equal((await f.call('/expense/'+id,{method:'DELETE',body:{revision:2}})).status,200);
  assert.equal((await f.snapshot()).expenses.length,0);
- const exportData=await(await f.call('/export')).json();assert.equal(exportData.format,'playero-finance-v1');assert.equal(exportData.records.length,1);assert.equal(exportData.records[0].deleted,true);assert.equal(exportData.history.length,3);assert.match(exportData.notice,/no las fotos/);
+ const exportData=await(await f.call('/export')).json();assert.equal(exportData.format,'playero-finance-v2');assert.equal(exportData.records.length,1);assert.equal(exportData.records[0].deleted,true);assert.equal(exportData.history.length,3);assert.match(exportData.notice,/no las fotos/);
  assert.equal(csvCell('=HYPERLINK("evil")'),'"\'=HYPERLINK(""evil"")"');assert.equal(csvCell('  +SUM(1)'),'"\'  +SUM(1)"');assert.equal(csvCell(-10),'"-10"');
  for(const bad of [-1,NaN,Infinity,1.1])assert.throws(()=>validateFinance('sale',{date:'2026-11-01',cash:bad,card:0,transfer:0,other:0}));
 });
