@@ -202,3 +202,13 @@ Los fondos de color conservan disponible blanco a la izquierda y deuda roja
 pequeña a la derecha, proporción y distribución de tres columnas. Un degradado
 oscuro mantiene legibilidad incluso con colores claros. Cambiar el aspecto no
 modifica saldos, cupos ni movimientos.
+
+
+## Lista de gastos del negocio
+
+Compras y costos → Gastos y facturas muestra solo comprobantes con importe del
+negocio mayor que cero. En facturas mixtas, la lista muestra únicamente ese
+importe y las identifica como mixtas; Ver / editar conserva el comprobante
+completo y su reparto. El contador del resumen usa el mismo filtro. Los gastos
+personales permanecen guardados y accesibles desde el dashboard de cuentas,
+incluidos sus enlaces de edición. No se alteran cargos, saldos ni el respaldo.
