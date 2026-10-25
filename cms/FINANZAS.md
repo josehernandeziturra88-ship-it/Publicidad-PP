@@ -1,6 +1,6 @@
 # Compras, costos, cuentas y tarjetas
 
-Control privado del negocio y de la casa desde **2026-10-25**, con fechas de
+Control privado del negocio y los gastos personales desde **2026-10-25**, con fechas de
 America/Santiago y pesos chilenos enteros. No se crean ventas ni saldos ficticios.
 Se conservan registros de v1: compras sin reparto siguen siendo del negocio;
 registros sin cuenta cuentan en informes, pero no cambian saldos bancarios.
@@ -108,7 +108,7 @@ Consume cuota Workers AI de la cuenta: máximo propio **10 lecturas nuevas al d�
 chileno**; fallos también consumen intento porque pueden haber usado inferencia.
 Borradores exitosos cacheados por comprobante no solicitan otra lectura.
 
-La salida es solo un borrador acotado: no crea gastos, no clasifica negocio/casa,
+La salida es solo un borrador acotado: no crea gastos, no clasifica negocio/personal,
 no ejecuta instrucciones en la foto. El usuario aplica el borrador, revisa y
 guarda explícitamente. Cantidades/importes ilegibles quedan vacíos. No se garantiza
 precisión ni interpretación de cajas, IVA o descuentos. No se envían credenciales,

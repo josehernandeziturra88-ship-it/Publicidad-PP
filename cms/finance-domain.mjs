@@ -2,7 +2,7 @@
 // three decimal places. Financial records never become public site content.
 export const SALES_START = '2026-10-25';
 export const CATEGORIES = ['Ingredientes', 'Envases', 'Gas y energía', 'Sueldos', 'Arriendo', 'Servicios', 'Equipamiento', 'Impuestos', 'Alimentación casa', 'Salud', 'Transporte', 'Educación', 'Otros'];
-export const SCOPES = {business:'Negocio', personal:'Casa / personal'};
+export const SCOPES = {business:'Negocio', personal:'Personal'};
 export const ACCOUNT_TYPES = {bank:'Cuenta bancaria / débito', cash:'Efectivo', credit:'Tarjeta de crédito'};
 export const UNITS = {kg: {family: 'weight', factor: 1000, label: 'kg'}, g: {family: 'weight', factor: 1, label: 'g'}, l: {family: 'volume', factor: 1000, label: 'litros'}, ml: {family: 'volume', factor: 1, label: 'ml'}, unidad: {family: 'count', factor: 1, label: 'unidades'}};
 export class FinanceError extends Error { constructor(message, status = 400) { super(message); this.status = status; } }
@@ -32,7 +32,7 @@ export function validMonth(v) { if (typeof v !== 'string' || !/^20\d{2}-(0[1-9]|
 export function validId(v) { if (typeof v !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v)) fail('Identificador inválido.'); return v; }
 function unit(v) { if (!Object.hasOwn(UNITS, v)) fail('Selecciona una unidad válida.'); return v; }
 function list(v, label, max, min = 0) { if (!Array.isArray(v) || v.length < min || v.length > max) fail(`${label}: revisa la cantidad de filas (máximo ${max}).`); return v; }
-function scope(v) {if(!Object.hasOwn(SCOPES,v))fail('Selecciona negocio o casa / personal.');return v;}
+function scope(v) {if(!Object.hasOwn(SCOPES,v))fail('Selecciona negocio o personal.');return v;}
 const accountId = v => v ? validId(v) : '';
 export function expenseSplit(expense) {
  if(expense.lines?.length){const business=expense.lines.reduce((sum,l)=>sum+Math.round(l.amount*(l.businessQuantity??(expense.scope==='personal'?0:l.quantity))/l.quantity),0);return {business,personal:expense.total-business};}

@@ -11,7 +11,7 @@ export function invoiceDraft(response){
  if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new FinanceError('El borrador no es válido.',422);
  let date='';try{date=validDate(parsed.date);}catch{}
  const units=new Set(['kg','g','l','ml','unidad']);
- return {supplier:cleanText(parsed.supplier,150),number:cleanText(parsed.number,80),date,total:value(parsed.total),lines:(Array.isArray(parsed.lines)?parsed.lines:[]).slice(0,40).filter(l=>l&&typeof l==='object').map(l=>({description:cleanText(l.description,150),quantity:value(l.quantity,3),unit:units.has(l.unit)?l.unit:'unidad',amount:value(l.amount)})),reviewRequired:true,notice:'Borrador generado automáticamente. Revisa productos, cantidades, presentación, IVA, descuentos y destino negocio/casa antes de guardar.'};
+ return {supplier:cleanText(parsed.supplier,150),number:cleanText(parsed.number,80),date,total:value(parsed.total),lines:(Array.isArray(parsed.lines)?parsed.lines:[]).slice(0,40).filter(l=>l&&typeof l==='object').map(l=>({description:cleanText(l.description,150),quantity:value(l.quantity,3),unit:units.has(l.unit)?l.unit:'unidad',amount:value(l.amount)})),reviewRequired:true,notice:'Borrador generado automáticamente. Revisa productos, cantidades, presentación, IVA, descuentos y destino negocio/personal antes de guardar.'};
 }
 export async function readInvoice(db,env,id){
  const cached=await db.prepare('SELECT document FROM finance_ocr WHERE receipt_id=?').bind(id).first();if(cached)return {...JSON.parse(cached.document),cached:true};
