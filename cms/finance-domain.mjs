@@ -72,7 +72,7 @@ export function validateFinance(kind, input, {today = todayChile()} = {}) {
  if(kind==='account'){
   if(!Object.hasOwn(ACCOUNT_TYPES,input.type))fail('Selecciona el tipo de cuenta.');
   const last4=text(input.last4??'','Últimos cuatro dígitos',4,true);if(last4&&!/^\d{4}$/.test(last4))fail('Ingresa solo los últimos cuatro dígitos o deja el campo vacío.');
-  return {name:text(input.name,'Nombre de la cuenta',100),bank:text(input.bank??'','Banco',100,true),last4,type:input.type,scope:scope(input.scope),openingDate:validDate(input.openingDate,{today}),openingBalance:num(input.openingBalance,input.type==='credit'?'Deuda inicial':'Saldo inicial',-1000000000),creditLimit:input.type==='credit'?num(input.creditLimit,'Cupo total'):0,paymentDay:input.type==='credit'?num(input.paymentDay??0,'Día de pago',0,31):0,closingDay:input.type==='credit'?num(input.closingDay??0,'Día de facturación',0,31):0};
+  return {name:text(input.name,'Nombre de la cuenta',100),bank:text(input.bank??'','Banco',100,true),last4,imageId:accountId(input.imageId),type:input.type,scope:scope(input.scope),openingDate:validDate(input.openingDate,{today}),openingBalance:num(input.openingBalance,input.type==='credit'?'Deuda inicial':'Saldo inicial',-1000000000),creditLimit:input.type==='credit'?num(input.creditLimit,'Cupo total'):0,paymentDay:input.type==='credit'?num(input.paymentDay??0,'Día de pago',0,31):0,closingDay:input.type==='credit'?num(input.closingDay??0,'Día de facturación',0,31):0};
  }
  if(kind==='movement'){
   if(!['income','transfer','adjustment'].includes(input.type))fail('Selecciona el tipo de movimiento.');

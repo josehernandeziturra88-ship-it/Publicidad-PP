@@ -54,6 +54,7 @@ async function validateReferences(db, kind, doc, id) {
  if(kind==='sale')for(const key of ['cash','card','transfer','other'])await checkAccount(doc.accounts[key],doc.date,{allowCredit:false});
  if(kind==='movement'){await checkAccount(doc.toAccountId,doc.date);if(doc.type==='transfer')await checkAccount(doc.fromAccountId,doc.date);}
  if(kind==='account'){
+  if(doc.imageId){const image=await db.prepare('SELECT mime FROM finance_receipts WHERE id=?').bind(doc.imageId).first();if(!image||!image.mime.startsWith('image/'))throw new FinanceError('La imagen de la cuenta no está disponible. Adjunta una imagen válida nuevamente.');}
   const previous=await active(db,kind,id);
   if(previous){const old=JSON.parse(previous.document);if(old.type!==doc.type||old.openingDate!==doc.openingDate){
    if(await accountUsed(db,id))throw new FinanceError('Esta cuenta ya tiene movimientos. Conserva su tipo y fecha inicial; crea otra cuenta si necesitas una estructura diferente.',409);

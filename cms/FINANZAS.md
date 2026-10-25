@@ -49,7 +49,12 @@ costo histórico de ventas ni cálculo de utilidad tributaria.
 
 Tipos: banco/débito, efectivo y crédito. Ámbito negocio/personal, nombre, banco
 opcional y últimos 4 dígitos opcionales. Nunca se solicitan número completo, CVV
-ni credenciales. Se ingresa el saldo al **comenzar** una fecha y luego sus movimientos.
+ni credenciales. Se admite una imagen opcional por cuenta/tarjeta, almacenada en
+el archivo financiero privado (nunca /media). Solo se permiten referencias a
+imágenes válidas, no PDF. Se muestra en la ficha y se puede cambiar o quitar.
+El usuario elige un logo o una foto con datos sensibles previamente tapados; no
+se realiza redacción automática. Comparte el límite de 100 MB y se conserva en el
+historial al quitarla. Se ingresa el saldo al **comenzar** una fecha y luego sus movimientos.
 Crédito: deuda positiva o saldo a favor negativo; cupo y días de pago/facturación.
 
 Saldos hasta el menor entre fin del mes seleccionado y hoy:

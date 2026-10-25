@@ -25,6 +25,12 @@ test('El seguimiento acepta ventas desde hoy (25 de octubre) y conserva los cier
  const f=await fixture(t),doc={date:'2026-10-25',cash:0,card:0,transfer:0,other:0};assert.equal((await f.put('sale',doc.date,doc)).status,201);assert.equal((await f.put('sale','2026-10-24',{...doc,date:'2026-10-24'})).status,400);
  const s=await f.snapshot(),total=summarizeMonth('2026-10',s.sales,[],s.today);assert.equal(s.startDate,'2026-10-25');assert.equal(total.recorded,1);assert.equal(total.missing,6);assert.equal(total.days[23].status,'before');
 });
+test('La cuenta guarda una imagen privada opcional, rechaza PDF/referencias inexistentes y permite quitarla sin cambiar saldos',async t=>{
+ const f=await fixture(t),image=await f.upload(),a=await f.account({imageId:image.id});let w=await f.wallet();assert.equal(w.accounts[0].imageId,image.id);assert.equal(w.accounts[0].balance,1000000);
+ assert.equal((await f.call('/receipts/'+image.id,{anonymous:true})).status,401);const response=await f.call('/receipts/'+image.id);assert.equal(response.headers.get('Cache-Control'),'no-store');assert.deepEqual(new Uint8Array(await response.arrayBuffer()),png);
+ const pdf=await f.upload(new TextEncoder().encode('%PDF-1.4\n%%EOF'),'application/pdf');assert.equal((await f.put('account',a.id,{...a,imageId:pdf.id},1)).status,400);assert.equal((await f.put('account',a.id,{...a,imageId:crypto.randomUUID()},1)).status,400);
+ assert.equal((await f.put('account',a.id,{...a,imageId:''},1)).status,200);w=await f.wallet();assert.equal(w.accounts[0].imageId,'');assert.equal(w.accounts[0].balance,1000000);assert.equal(w.ledger.length,0);
+});
 test('Una factura se reparte por cantidades entre local y casa; la compra personal no modifica costos del negocio',async t=>{
  const f=await fixture(t),potato=await f.save('ingredient',{name:'Papas',unit:'kg',unitCost:1500});
  const expense=await f.save('expense',f.expense({scope:'mixed',number:'A-1',lines:[{description:'Pollos',quantity:20,businessQuantity:20,unit:'kg',amount:50000,ingredientId:''},{description:'Papas',quantity:10,businessQuantity:8,unit:'kg',amount:12000,ingredientId:potato.id},{description:'Casa',quantity:1,businessQuantity:0,unit:'unidad',amount:8000,ingredientId:''}]}));
