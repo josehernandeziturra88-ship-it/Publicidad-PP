@@ -1,0 +1,153 @@
+import {SALES_START,CATEGORIES,UNITS,todayChile,summarizeMonth,costRecipe,csvCell} from './finance-domain.mjs';
+
+const $ = s => document.querySelector(s);
+const money = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
+const number = n => new Intl.NumberFormat('es-CL',{maximumFractionDigits:4}).format(n);
+const dateLabel = date => new Date(date+'T12:00:00Z').toLocaleDateString('es-CL',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+let data, view='summary', draft, editing, kind, dirty=false, working=false, loading=false, noticeTimer;
+function node(tag, cls, text) {const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
+function button(text, action, cls='small-button') {const el=node('button',cls,text);el.type='button';el.addEventListener('click',action);return el;}
+function link(text, href, cls='small-button') {const a=node('a',cls,text);a.href=href;a.target='_blank';a.rel='noopener';return a;}
+function tell(text,error=false) {clearTimeout(noticeTimer);const box=$('#finance-message');box.textContent=text;box.classList.toggle('error',error);box.hidden=false;if(!error)noticeTimer=setTimeout(()=>box.hidden=true,7000);}
+async function api(path,options={}) {
+ let response;try {response=await fetch('/admin/api/'+path,{...options,cache:'no-store',redirect:'error'});}catch{throw Error('No se pudo conectar. Revisa tu conexión; si la sesión venció, vuelve a entrar al panel.');}
+ let result;try{result=await response.json();}catch{throw Error('No se pudo leer la respuesta. Tu sesión puede haber vencido; vuelve a entrar al panel.');}
+ if(!response.ok)throw Error(result.error||'No se pudo completar la operación.');return result;
+}
+function jsonOptions(method,body) {return {method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};}
+function markDirty() {dirty=true;}
+function setWorking(value) {working=value;$('#record-form').querySelectorAll('input,textarea,select,button').forEach(el=>el.disabled=value);$('#save-record').textContent=value?'Procesando…':'Guardar registro';}
+function field(parent,label,value,set,{type='text',required=true,max=200,min=0,step=1,hint}={}) {
+ const wrap=node('label','field'),caption=node('span',null,label);caption.id='field-'+crypto.randomUUID();wrap.append(caption);
+ const input=node(type==='textarea'?'textarea':'input');if(type!=='textarea')input.type=type;
+ input.value=value??'';input.required=required;input.setAttribute('aria-labelledby',caption.id);
+ if(type==='number'){input.min=min;input.max=1000000000;input.step=step;input.inputMode=step<1?'decimal':'numeric';}
+ if(['text','textarea'].includes(type))input.maxLength=max;
+ input.addEventListener('input',()=>{set(type==='number'?input.valueAsNumber:input.value);markDirty();});wrap.append(input);if(hint){const help=node('small',null,hint);help.id=caption.id+'-help';input.setAttribute('aria-describedby',help.id);wrap.append(help);}parent.append(wrap);return input;
+}
+function select(parent,label,value,options,set,{required=true}={}) {
+ const wrap=node('label','field'),input=node('select'),caption=node('span',null,label);caption.id='field-'+crypto.randomUUID();wrap.append(caption);input.setAttribute('aria-labelledby',caption.id);input.required=required;
+ for(const [v,text]of options){const option=node('option',null,text);option.value=v;input.append(option);}input.value=value;
+ input.addEventListener('change',()=>{set(input.value);markDirty();});wrap.append(input);parent.append(wrap);return input;
+}
+const unitOptions=()=>Object.entries(UNITS).map(([id,u])=>[id,u.label]);
+function cols(parent) {const el=node('div','cols');parent.append(el);return el;}
+function heading(parent,title,help,action) {const row=node('div','section-top');row.append(node('h2',null,title));if(action)row.append(action);parent.append(row);if(help)parent.append(node('p','help',help));}
+function empty(parent,title,copy,action) {const box=node('div','empty-state');box.append(node('h3',null,title),node('p',null,copy));if(action)box.append(action);parent.append(box);}
+function switchView(next) {view=next;for(const b of document.querySelectorAll('[data-view]')){if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}for(const section of document.querySelectorAll('.finance-view'))section.hidden=section.id!=='view-'+view;}
+function breakdown(parent, entries) {const list=node('ul','breakdown');for(const [label,value] of entries){const row=node('li');row.append(node('span',null,label),node('strong',null,value));list.append(row);}parent.append(list);}
+function receiptURL(id,download=false) {return '/admin/api/finance/receipts/'+id+(download?'?download=1':'');}
+function summary() {return summarizeMonth(data.month,data.sales,data.expenses,data.today);}
+function renderSummary() {
+ const target=$('#view-summary');target.replaceChildren();const stats=summary(),metrics=node('div','metrics');
+ for(const [label,value,help]of [['Ventas registradas',money(stats.revenue),`${stats.recorded} cierres diarios guardados`],['Gastos pagados',money(stats.outflow),`${data.expenses.length} gastos en el mes`],['Resultado de caja',money(stats.cashResult),'Ventas registradas menos gastos pagados'],['Días pendientes',String(stats.missing),'Días transcurridos sin cierre']]){
+  const card=node('div','metric');const strong=node('strong',value.startsWith('-')?'negative':null,value);card.append(node('span',null,label),strong,node('small',null,help));metrics.append(card);
+ }
+ target.append(metrics);
+ target.append(node('p','help','El resultado de caja es parcial mientras falten cierres o gastos. Las compras no equivalen al costo de lo vendido: este resumen no calcula utilidad contable, inventario ni impuestos por pagar.'));
+ const grid=node('div','summary-grid'),chartCard=node('section','card'),methods=node('section','card');chartCard.append(node('h3',null,'Ventas por día'));
+ const chart=node('div','chart');chart.setAttribute('role','img');chart.setAttribute('aria-label','Ventas diarias. Las líneas discontinuas indican días sin registrar.');const max=Math.max(1,...stats.days.map(d=>d.total??0));
+ for(const day of stats.days){const col=node('div','bar-column');col.dataset.status=day.status;col.title=`${dateLabel(day.date)}: ${day.status==='recorded'?money(day.total):day.status==='missing'?'sin registrar':day.status==='future'?'fecha futura':'antes del inicio'}`;const bar=node('span','bar');bar.style.height=(day.total===null?3:Math.max(2,day.total/max*130))+'px';col.append(bar,node('small',null,day.date.slice(-2)));chart.append(col);}chartCard.append(chart);const legend=node('div','legend');legend.append(node('span',null,'Cierre registrado'),node('span','pending','Sin registrar'));chartCard.append(legend);
+ methods.append(node('h3',null,'Cómo te pagaron'));breakdown(methods,[['Efectivo',money(stats.totals.cash)],['Tarjeta',money(stats.totals.card)],['Transferencia',money(stats.totals.transfer)],['Otros',money(stats.totals.other)]]);grid.append(chartCard,methods);target.append(grid);
+ const expenseCard=node('section','card subheading');expenseCard.append(node('h3',null,'Distribución de gastos'));const categories=CATEGORIES.map(c=>[c,data.expenses.filter(e=>e.category===c).reduce((s,e)=>s+e.total,0)]).filter(([,v])=>v>0);if(categories.length)breakdown(expenseCard,categories.map(([c,v])=>[c,money(v)]));else expenseCard.append(node('p','help','Todavía no hay gastos registrados para este mes.'));target.append(expenseCard);
+ if(!data.ingredients.length&&!data.recipes.length){const guide=node('section','card subheading');guide.append(node('h3',null,'Prepara noviembre desde hoy'));const steps=node('ol','setup-steps');for(const line of ['Crea tus insumos en Costos por producto: pollo, papas, aceite, envases…','Sube los comprobantes de las compras y vincula sus productos a cada insumo.','Arma tus recetas para conocer el costo estimado de cada porción.','Desde el 1 de noviembre, guarda un cierre de ventas al terminar cada día.'])steps.append(node('li',null,line));guide.append(steps);target.append(guide);}
+}
+function renderSales() {
+ const target=$('#view-sales');target.replaceChildren();const today=data.today,canAdd=today>=SALES_START&&today.startsWith(data.month);
+ heading(target,'Un cierre por día','Registra ventas cobradas, antes de descontar comisiones de tarjeta. Anota esas comisiones como un gasto. Si el local estuvo cerrado, guarda el día con ventas en cero.',canAdd?button('+ Registrar hoy',()=>openSale(today),'primary'):null);
+ const grid=node('div','day-grid');
+ for(const day of summary().days){const b=button('',()=>openSale(day.date),'day '+day.status);b.disabled=['future','before'].includes(day.status);const status=day.status==='recorded'?'Registrado · editar':day.status==='missing'?'Sin registrar':day.status==='future'?'Próximamente':'Antes del seguimiento';b.setAttribute('aria-label',`${dateLabel(day.date)} · ${status}`);b.append(node('b',null,dateLabel(day.date).replace(' de 2026','')),node('strong',null,day.total===null?'—':money(day.total)),node('span',null,status));grid.append(b);}target.append(grid);
+}
+function renderExpenses() {
+ const target=$('#view-expenses');target.replaceChildren();heading(target,'Gastos y comprobantes','Adjunta una foto o un PDF y registra el importe pagado, incluidos impuestos. Por ahora los datos se ingresan manualmente: la foto no se lee automáticamente.',button('+ Registrar gasto',()=>openExpense(),'primary'));
+ const storage=data.storage;target.append(node('p','help',`Archivo privado: ${number(storage.bytes/1000000)} de ${storage.maxBytes/1000000} MB utilizados · ${storage.count} comprobantes. Fotos y PDF de hasta 1,5 MB; las fotos grandes se optimizan antes de subir.`));
+ if(!data.expenses.length){empty(target,'Tu primer comprobante, bien guardado.','Puedes preparar tus costos con compras anteriores a noviembre. Selecciona el mes correspondiente para verlas.',button('Registrar un gasto',()=>openExpense(),'primary'));return;}
+ const list=node('div','data-list');for(const expense of data.expenses){const row=node('article','list-row'),info=node('div');info.append(node('h3',null,expense.supplier),node('p',null,`${dateLabel(expense.date)}${expense.number?' · Comprobante '+expense.number:''}`),node('span','pill',expense.category));if(expense.receiptId)info.append(node('span','pill','Comprobante adjunto'));const actions=node('div','row-actions');actions.append(node('strong','row-total',money(expense.total)),button('Ver / editar',()=>openExpense(expense)));row.append(info,actions);list.append(row);}target.append(list);
+}
+function renderCosts() {
+ const target=$('#view-costs');target.replaceChildren();heading(target,'Cuánto cuesta cada producto','Los costos usan la última compra registrada de cada insumo, de cualquier mes. Si no hay una compra vinculada, usan el costo manual. Son referencias actuales; cambiar el mes no reconstruye costos históricos.',button('+ Crear insumo',()=>openIngredient(),'outline'));
+ if(!data.ingredients.length)empty(target,'Empieza por tus ingredientes y envases.','Crea, por ejemplo, “Papas” en kg y “Caja para pollo” en unidades. Podrás vincularlos al detalle de tus facturas.',button('Crear primer insumo',()=>openIngredient(),'primary'));
+ else {const list=node('div','data-list');for(const ingredient of data.ingredients){const row=node('article','list-row'),info=node('div'),source=data.costs[ingredient.id],cost=source?.unitCost??ingredient.unitCost;info.append(node('h3',null,ingredient.name),node('p',null,source?'Última compra: '+dateLabel(source.date):'Costo manual de referencia'));const actions=node('div','row-actions');actions.append(node('strong','row-total',`${number(cost)} $/${ingredient.unit}`),button('Editar insumo',()=>openIngredient(ingredient)));row.append(info,actions);list.append(row);}target.append(list);}
+ const recipeSection=node('div','subheading');heading(recipeSection,'Recetas y margen estimado','Indica cantidades útiles, merma y porciones obtenidas. Agrega gas, mano de obra u otros costos de la preparación. El precio de venta aquí es una referencia y no modifica tu menú público.',button('+ Crear receta',()=>openRecipe(),'primary'));target.append(recipeSection);
+ if(!data.recipes.length){empty(recipeSection,'Del comprobante al costo de tu combo.','Cuando tengas tus insumos, arma una receta y el panel calculará el costo por porción y la diferencia con tu precio de venta.');return;}
+ const list=node('div','cards-grid');for(const recipe of data.recipes){const card=node('article','card'),cost=costRecipe(recipe,data.ingredients,data.costs);card.append(node('h3',null,recipe.name));breakdown(card,[['Costo estimado por porción',cost.complete?money(cost.portionCost):'Faltan costos'],['Precio de venta de referencia',money(recipe.price)],['Margen por porción',cost.complete?money(cost.margin):'—'],['Margen sobre venta',cost.marginPercent===null?'—':number(cost.marginPercent)+' %']]);card.append(node('p','help',`${recipe.portions} porción(es) por preparación. Margen estimado, no utilidad neta.`),button('Editar receta',()=>openRecipe(recipe)));list.append(card);}recipeSection.append(list);
+}
+function render() {
+ const note=$('#start-note');note.textContent=data.today<SALES_START?'El seguimiento de ventas comienza el 1 de noviembre de 2026. Desde hoy puedes registrar compras, adjuntar comprobantes y preparar tus recetas.':data.month<'2026-11'?'Este mes es anterior al seguimiento de ventas. Puedes consultar tus compras y preparar costos.':'Guarda el cierre de cada día, incluso si no hubo ventas. Un día sin registrar permanece pendiente.';
+ renderSummary();renderSales();renderExpenses();renderCosts();switchView(view);
+}
+async function reload() {
+ if(loading)return;loading=true;$('#refresh').disabled=true;$('#month').disabled=true;$('#finance').classList.add('loading');
+ try{const result=await api('finance/snapshot?month='+encodeURIComponent($('#month').value));data=result;render();$('#finance').hidden=false;$('#fatal').hidden=true;}
+ finally{loading=false;$('#refresh').disabled=false;$('#month').disabled=false;$('#finance').classList.remove('loading');$('#loading').hidden=true;}
+}
+function openRecord(type, record, initial, title) {
+ if(working)return;
+ kind=type;editing=record;draft=structuredClone(record??initial);dirty=false;$('#dialog-title').textContent=title;$('#dialog-fields').replaceChildren();$('#form-error').hidden=true;$('#delete-record').hidden=!record||type==='sale';$('#delete-record').textContent=type==='expense'?'Anular gasto':'Eliminar registro';$('#save-record').textContent='Guardar registro';
+ $('#record-dialog').showModal();return $('#dialog-fields');
+}
+function closeDialog(force=false) {if(working)return;if(!force&&dirty&&!confirm('Tienes cambios sin guardar. ¿Quieres cerrar el formulario y descartarlos?'))return;$('#record-dialog').close();dirty=false;}
+function openSale(date) {
+ const record=data.sales.find(s=>s.date===date),parent=openRecord('sale',record,{id:date,date,cash:0,card:0,transfer:0,other:0,notes:''},'Cierre del '+dateLabel(date));if(!parent)return;
+ parent.append(node('p','help','Cuenta las ventas cobradas del día. No registres dos veces el mismo pago. El cierre se guarda una sola vez por fecha y puedes corregirlo después.'));
+ const fields=cols(parent);for(const [key,label]of [['cash','Efectivo ($)'],['card','Tarjeta ($)'],['transfer','Transferencia ($)'],['other','Otros cobros ($)']])field(fields,label,draft[key],v=>{draft[key]=v;update();},{type:'number'});
+ const total=node('div','form-summary');parent.append(total);function update(){total.replaceChildren(node('span',null,'Total vendido en el día'),node('strong',null,money(['cash','card','transfer','other'].reduce((s,k)=>s+(Number.isFinite(draft[k])?draft[k]:0),0))));}update();
+ field(parent,'Notas del cierre',draft.notes,v=>draft.notes=v,{type:'textarea',required:false,max:1000,hint:'Por ejemplo: local cerrado, evento especial o ajuste revisado.'});
+}
+function recentDate() {const today=data.today;return today.startsWith(data.month)?today:data.month>today.slice(0,7)?today:data.month+'-01';}
+function openExpense(record) {
+ const parent=openRecord('expense',record,{id:crypto.randomUUID(),date:recentDate(),supplier:'',number:'',category:'Ingredientes',total:0,notes:'',receiptId:'',lines:[]},record?'Editar gasto':'Registrar gasto pagado');if(!parent)return;
+ parent.append(node('p','help','Registra un gasto efectivamente pagado. Si la factura todavía está pendiente de pago, consérvala y registra la salida cuando la pagues.'));
+ const fields=cols(parent);const date=field(fields,'Fecha del pago',draft.date,v=>draft.date=v,{type:'date'});date.max=data.today;date.min='2020-01-01';field(fields,'Proveedor o comercio',draft.supplier,v=>draft.supplier=v,{max:150});field(fields,'Número de factura o boleta',draft.number,v=>draft.number=v,{required:false,max:80});select(fields,'Categoría',draft.category,CATEGORIES.map(c=>[c,c]),v=>draft.category=v);field(fields,'Total pagado ($)',draft.total,v=>{draft.total=v;updateLinesTotal();},{type:'number',min:1});
+ const receipt=node('section','line-item');receipt.append(node('h3',null,'Comprobante privado'));const file=field(receipt,'Adjuntar foto o PDF','',()=>{},{type:'file',required:false});file.accept='image/*,application/pdf';file.removeAttribute('value');const preview=node('div');receipt.append(preview);parent.append(receipt);
+ function showReceipt(){preview.replaceChildren();if(!draft.receiptId){preview.append(node('p','help','Puedes tomar una foto con tu celular o elegir un archivo. Revisa y escribe los datos del comprobante en este formulario.'));return;}const actions=node('div','receipt-actions');actions.append(link('Descargar comprobante',receiptURL(draft.receiptId,true)),button('Quitar del gasto',()=>{draft.receiptId='';markDirty();showReceipt();},'quiet'));preview.append(node('p','help','Comprobante adjunto. Guarda el gasto para vincularlo al registro.'),actions);if(!preview.dataset.pdf){const image=node('img','receipt-preview');image.src=receiptURL(draft.receiptId);image.alt='Vista del comprobante privado';image.addEventListener('error',()=>image.remove());preview.append(image);}}
+ showReceipt();file.addEventListener('change',async()=>{const selected=file.files?.[0];if(!selected)return;setWorking(true);$('#form-error').hidden=true;try{const blob=await prepareReceipt(selected),uploaded=await api('finance/receipts',{method:'POST',headers:{'Content-Type':blob.type},body:blob});draft.receiptId=uploaded.id;preview.dataset.pdf=blob.type==='application/pdf'?'yes':'';markDirty();showReceipt();}catch(e){formError(e.message);}finally{setWorking(false);file.value='';}});
+ const detail=node('section','subheading');detail.append(node('h3',null,'Detalle de la compra (opcional)'),node('p','help','Para actualizar un costo, vincula la línea a un insumo. Usa la cantidad total comprada y el importe final de esa línea, incluidos impuestos y descuentos. Si agregas detalle, sus importes deben sumar el total pagado.'));
+ const rows=node('div','line-items'),sum=node('p','help');detail.append(rows,button('+ Agregar línea',()=>{if(draft.lines.length>=60)return formError('Se admiten hasta 60 líneas por gasto.');draft.lines.push({description:'',ingredientId:'',quantity:1,unit:'unidad',amount:0});markDirty();renderLines();}),sum);parent.append(detail);
+ function updateLinesTotal(){sum.textContent=`Suma del detalle: ${money(draft.lines.reduce((s,line)=>s+(Number.isFinite(line.amount)?line.amount:0),0))} · Total pagado: ${money(Number.isFinite(draft.total)?draft.total:0)}`;}
+ function renderLines(){rows.replaceChildren();draft.lines.forEach((line,index)=>{const box=node('div','line-item');box.append(button('Quitar línea',()=>{draft.lines.splice(index,1);markDirty();renderLines();},'quiet remove-line'));const pair=cols(box);field(pair,'Producto comprado',line.description,v=>line.description=v,{max:150});select(pair,'Vincular a insumo',line.ingredientId,[['','Sin vínculo'],...data.ingredients.map(i=>[i.id,i.name])],v=>line.ingredientId=v,{required:false});const numbers=cols(box);field(numbers,'Cantidad total comprada',line.quantity,v=>line.quantity=v,{type:'number',min:.001,step:.001});select(numbers,'Unidad de compra',line.unit,unitOptions(),v=>line.unit=v);field(numbers,'Importe final de la línea ($)',line.amount,v=>{line.amount=v;updateLinesTotal();},{type:'number',min:1});rows.append(box);});updateLinesTotal();}renderLines();
+ field(parent,'Notas del gasto',draft.notes,v=>draft.notes=v,{type:'textarea',required:false,max:1000});
+}
+async function prepareReceipt(file) {
+ if(file.type==='application/pdf'){if(file.size>1500000)throw Error('El PDF debe pesar hasta 1,5 MB. Reduce su tamaño o adjunta una foto legible.');return file;}
+ if(!file.type.startsWith('image/'))throw Error('Elige una foto o un PDF.');
+ if(file.size>20000000)throw Error('La foto original debe pesar menos de 20 MB.');
+ if(['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)&&file.size<=1500000)return file;
+ let bitmap;try{bitmap=await createImageBitmap(file);}catch{throw Error('Este navegador no pudo leer la foto. Guárdala como JPG o PNG y vuelve a subirla.');}
+ try{const scale=Math.min(1,2400/Math.max(bitmap.width,bitmap.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);for(const quality of [.92,.85,.75,.65]){const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',quality));if(blob&&blob.size<=1500000)return blob;}throw Error('La foto sigue pesando demasiado. Recorta los bordes y vuelve a subirla.');}finally{bitmap.close();}
+}
+function openIngredient(record) {
+ const parent=openRecord('ingredient',record,{id:crypto.randomUUID(),name:'',unit:'kg',unitCost:0},record?'Editar insumo':'Nuevo ingrediente o insumo');if(!parent)return;
+ field(parent,'Nombre del insumo',draft.name,v=>draft.name=v,{max:120});select(parent,'Unidad de referencia',draft.unit,unitOptions(),v=>draft.unit=v);field(parent,'Costo manual por unidad de referencia ($)',draft.unitCost,v=>draft.unitCost=v,{type:'number',step:.0001,hint:'Ejemplo: papas a $1.200 por kg. Si aún no conoces el costo, deja 0; las recetas indicarán que falta información.'});
+ parent.append(node('p','help','Una compra vinculada tiene prioridad sobre el costo manual. No se convierte entre peso, volumen y unidades: utiliza la misma familia de unidades en compras y recetas.'));
+}
+function openRecipe(record) {
+ if(!data.ingredients.length){tell('Primero crea al menos un insumo para armar tu receta.');switchView('costs');return;}
+ const parent=openRecord('recipe',record,{id:crypto.randomUUID(),name:'',portions:1,price:0,overhead:0,parts:[{ingredientId:data.ingredients[0].id,quantity:1,unit:data.ingredients[0].unit,waste:0}]},record?'Editar ficha de costos':'Nueva ficha de costos');if(!parent)return;
+ field(parent,'Nombre del producto o combo',draft.name,v=>draft.name=v,{max:150});const fields=cols(parent);field(fields,'Porciones obtenidas por preparación',draft.portions,v=>{draft.portions=v;update();},{type:'number',min:1});field(fields,'Precio de venta por porción ($)',draft.price,v=>{draft.price=v;update();},{type:'number'});field(fields,'Otros costos de toda la preparación ($)',draft.overhead,v=>{draft.overhead=v;update();},{type:'number',hint:'Incluye gas, mano de obra, comisiones u otros costos que quieras asignar.'});
+ parent.append(node('p','help','Las cantidades son para toda la preparación. La merma indica la parte que se pierde antes de obtener la cantidad útil; deja 0 si la cantidad ya incluye esa pérdida.'));
+ const rows=node('div','line-items');parent.append(rows,button('+ Agregar insumo',()=>{if(draft.parts.length>=40)return formError('Se admiten hasta 40 insumos por receta.');draft.parts.push({ingredientId:data.ingredients[0].id,quantity:1,unit:data.ingredients[0].unit,waste:0});markDirty();renderParts();}));const result=node('div','form-summary cost-results');parent.append(result);
+ function update(){const cost=costRecipe(draft,data.ingredients,data.costs);result.replaceChildren(node('span',null,'Costo estimado por porción'),node('strong',null,cost.complete&&Number.isFinite(cost.portionCost)?money(cost.portionCost):'Faltan costos'),node('p',null,cost.complete?`Margen estimado: ${money(cost.margin)} por porción. No equivale a utilidad neta.`:'Registra un costo mayor a cero para cada insumo.'));const detail=node('details','cost-detail');detail.append(node('summary',null,'Ver cálculo por ingrediente'));breakdown(detail,cost.parts.map(p=>[p.name,p.cost===null?'Sin costo':money(p.cost)]));result.append(detail);}
+ function renderParts(){rows.replaceChildren();draft.parts.forEach((part,index)=>{const box=node('div','line-item');box.append(button('Quitar insumo',()=>{draft.parts.splice(index,1);markDirty();renderParts();},'quiet remove-line'));select(box,'Ingrediente o insumo',part.ingredientId,data.ingredients.map(i=>[i.id,i.name]),v=>{part.ingredientId=v;update();});const pair=cols(box);field(pair,'Cantidad útil para la preparación',part.quantity,v=>{part.quantity=v;update();},{type:'number',min:.001,step:.001});select(pair,'Unidad de la receta',part.unit,unitOptions(),v=>{part.unit=v;update();});const waste=field(pair,'Merma o pérdida (%)',part.waste,v=>{part.waste=v;update();},{type:'number',step:.01});waste.max=95;rows.append(box);});update();}renderParts();
+}
+function formError(text) {const box=$('#form-error');box.textContent=text;box.hidden=false;box.scrollIntoView({block:'nearest',behavior:'smooth'});}
+$('#record-form').addEventListener('submit',async event=>{
+ event.preventDefault();if(working)return;setWorking(true);$('#form-error').hidden=true;
+ try{await api(`finance/${kind}/${draft.id}`,jsonOptions('PUT',{revision:editing?.revision??0,document:draft}));dirty=false;$('#record-dialog').close();const savedKind=kind;const otherMonth=draft.date&&!draft.date.startsWith(data.month);if(otherMonth)$('#month').value=draft.date.slice(0,7);await reload();if(otherMonth&&savedKind==='expense')switchView('expenses');tell('Registro guardado'+(otherMonth?'. Se abrió el mes correspondiente.':'.'));}
+ catch(e){if($('#record-dialog').open)formError(e.message);else tell('El registro se guardó, pero no se pudo actualizar la vista. Pulsa Actualizar datos.',true);}
+ finally{setWorking(false);}
+});
+$('#delete-record').addEventListener('click',async()=>{if(working||!editing||!confirm('¿Quieres anular este registro? Dejará de contar en los totales. Su historial y comprobante se conservan.'))return;setWorking(true);try{await api(`finance/${kind}/${draft.id}`,jsonOptions('DELETE',{revision:editing.revision}));dirty=false;$('#record-dialog').close();await reload();tell('Registro anulado. Se conservó su historial.');}catch(e){if($('#record-dialog').open)formError(e.message);else tell('Se anuló el registro. Actualiza los datos para comprobarlo.',true);}finally{setWorking(false);}});
+for(const b of document.querySelectorAll('[data-view]'))b.addEventListener('click',()=>switchView(b.dataset.view));
+$('#close-dialog').addEventListener('click',()=>closeDialog());$('#cancel-dialog').addEventListener('click',()=>closeDialog());$('#record-dialog').addEventListener('cancel',event=>{event.preventDefault();closeDialog();});
+$('#refresh').addEventListener('click',()=>reload().catch(e=>tell(e.message,true)));$('#month').addEventListener('change',()=>reload().catch(e=>{if(data)$('#month').value=data.month;tell(e.message,true);}));
+function download(blob,name) {const url=URL.createObjectURL(blob),a=node('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+$('#csv').addEventListener('click',()=>{
+ const rows=[['Fecha','Tipo','Estado / categoría','Proveedor','Comprobante','Total CLP','Efectivo CLP','Tarjeta CLP','Transferencia CLP','Otros CLP','Notas']];
+ for(const day of summary().days){const sale=data.sales.find(s=>s.date===day.date);rows.push([day.date,'Venta',day.status==='recorded'?'Registrado':day.status==='missing'?'Pendiente':day.status==='future'?'Futuro':'Antes del inicio','','',day.total??'',sale?.cash??'',sale?.card??'',sale?.transfer??'',sale?.other??'',sale?.notes??'']);}
+ for(const e of data.expenses)rows.push([e.date,'Gasto pagado',e.category,e.supplier,e.number,e.total,'','','','',e.notes]);
+ download(new Blob(['\ufeff'+rows.map(row=>row.map(csvCell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`playero-finanzas-${data.month}.csv`);
+});
+$('#backup').addEventListener('click',async()=>{const b=$('#backup');b.disabled=true;try{const result=await api('finance/export');download(new Blob([JSON.stringify(result,null,2)],{type:'application/json'}),`playero-finanzas-${data.today}.json`);tell('Copia de datos descargada. Descarga también los comprobantes de cada gasto; no están incluidos en el JSON.');}catch(e){tell(e.message,true);}finally{b.disabled=false;}});
+window.addEventListener('beforeunload',event=>{if(dirty||working){event.preventDefault();event.returnValue='';}});
+try{const session=await api('session');$('#account-email').textContent=session.email;const today=todayChile();$('#month').value=today.slice(0,7)<'2026-11'?'2026-11':today.slice(0,7);await reload();}catch(e){$('#loading').hidden=true;$('#fatal').textContent=e.message;$('#fatal').hidden=false;}

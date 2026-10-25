@@ -1,6 +1,8 @@
 import defaults from '../content/default.json' with {type:'json'};
 import {validateDocument,MAX_IMAGE_BYTES,MAX_DOCUMENT_BYTES} from '../content/schema.js';
 import {authenticate,AccessError} from './auth.mjs';
+import {financeRequest} from './finance.mjs';
+import {FinanceError} from './finance-domain.mjs';
 
 const schema=[
  'CREATE TABLE IF NOT EXISTS site_content (id INTEGER PRIMARY KEY CHECK(id=1),document TEXT NOT NULL,revision INTEGER NOT NULL DEFAULT 1,updated_at TEXT NOT NULL)',
@@ -36,6 +38,10 @@ export function createWorker({assets={},loadKeys=undefined}={}){
     if(request.method!=='GET')throw new HttpError(405,'Método no permitido.');const key=(path==='/admin'||path==='/admin/')?'/admin/index.html':path;const asset=assets[key];if(!asset)throw new HttpError(404,'Página no encontrada.');return new Response(asset.body,{headers:{...security,'Content-Type':asset.type,'Cache-Control':'no-store','Content-Security-Policy':csp}});
    }
    await init(env.DB);
+   if(path.startsWith('/admin/api/finance/')){
+    if(!['GET','HEAD'].includes(request.method))mutationOrigin(request);
+    return await financeRequest(request,env.DB,{json,readLimited,imageMime});
+   }
    if(path==='/admin/api/session'&&request.method==='GET')return json({email:identity.email,siteOrigin:new URL(env.SITE_ORIGIN||'https://elpolloplayero.cl').origin});
    if(path==='/admin/api/content'){
     if(request.method==='GET')return json(await read(env.DB));
@@ -62,5 +68,5 @@ export function createWorker({assets={},loadKeys=undefined}={}){
    throw new HttpError(404,'Acción no encontrada.');
   }
   throw new HttpError(404,'Página no encontrada.');
- }catch(e){return json({error:e instanceof HttpError?e.message:'No se pudo completar la operación. Inténtalo nuevamente.'},e instanceof HttpError?e.status:500);}}};
+ }catch(e){const known=e instanceof HttpError||e instanceof FinanceError;return json({error:known?e.message:'No se pudo completar la operación. Inténtalo nuevamente.'},known?e.status:500);}}};
 }
