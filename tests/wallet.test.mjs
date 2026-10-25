@@ -31,6 +31,13 @@ test('La cuenta guarda una imagen privada opcional, rechaza PDF/referencias inex
  const pdf=await f.upload(new TextEncoder().encode('%PDF-1.4\n%%EOF'),'application/pdf');assert.equal((await f.put('account',a.id,{...a,imageId:pdf.id},1)).status,400);assert.equal((await f.put('account',a.id,{...a,imageId:crypto.randomUUID()},1)).status,400);
  assert.equal((await f.put('account',a.id,{...a,imageId:''},1)).status,200);w=await f.wallet();assert.equal(w.accounts[0].imageId,'');assert.equal(w.accounts[0].balance,1000000);assert.equal(w.ledger.length,0);
 });
+test('El color de la tarjeta se conserva junto a su foto privada y cambiarlo no altera deuda, cupo ni movimientos',async t=>{
+ const f=await fixture(t),image=await f.upload(),a=await f.account({type:'credit',openingBalance:200000,creditLimit:900000,imageId:image.id,cardColor:'#237A3B'});
+ let w=await f.wallet();assert.equal(w.accounts[0].cardColor,'#237a3b');assert.equal(w.accounts[0].imageId,image.id);assert.equal(w.accounts[0].balance,200000);assert.equal(w.accounts[0].available,700000);
+ for(const cardColor of ['red','#fff','#gggggg','url(x)',42])assert.equal((await f.put('account',a.id,{...a,cardColor},1)).status,400);
+ assert.equal((await f.put('account',a.id,{...a,cardColor:''},1)).status,200);w=await f.wallet();assert.equal(w.accounts[0].cardColor,'');assert.equal(w.accounts[0].imageId,image.id);assert.equal(w.accounts[0].balance,200000);assert.equal(w.accounts[0].available,700000);assert.equal(w.ledger.length,0);
+ const older=await f.account();assert.equal(older.cardColor,'');
+});
 test('Una factura se reparte por cantidades entre local y casa; la compra personal no modifica costos del negocio',async t=>{
  const f=await fixture(t),potato=await f.save('ingredient',{name:'Papas',unit:'kg',unitCost:1500});
  const expense=await f.save('expense',f.expense({scope:'mixed',number:'A-1',lines:[{description:'Pollos',quantity:20,businessQuantity:20,unit:'kg',amount:50000,ingredientId:''},{description:'Papas',quantity:10,businessQuantity:8,unit:'kg',amount:12000,ingredientId:potato.id},{description:'Casa',quantity:1,businessQuantity:0,unit:'unidad',amount:8000,ingredientId:''}]}));

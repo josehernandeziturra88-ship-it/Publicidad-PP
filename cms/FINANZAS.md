@@ -186,3 +186,19 @@ anteriores usan valores predeterminados y la imagen existente.
 `node scripts/check-card-layout.cjs`, con servidor wallet nuevo, prueba controles,
 giro sin deformación, persistencia, saldos, banco/crédito y límites visuales a
 320/390/1440 px. Sus imágenes y saldos de ejemplo son ficticios.
+
+
+## Colores por tarjeta
+
+Editar → Diseño de la tarjeta permite seleccionar Color o Imagen, siete colores
+predefinidos y un selector de color personalizado con vista previa. `cardColor`
+acepta únicamente HEX de seis dígitos o vacío (imagen/diseño anterior). No requiere
+migrar tablas. Un color tiene prioridad visual sobre la imagen, pero conserva
+`imageId` y el archivo privado para volver a usarlo. Las cuentas anteriores
+mantienen sus imágenes; las nuevas comienzan con un fondo azul marino. Subir una
+imagen activa su fondo; quitarla activa el color seleccionado.
+
+Los fondos de color conservan disponible blanco a la izquierda y deuda roja
+pequeña a la derecha, proporción y distribución de tres columnas. Un degradado
+oscuro mantiene legibilidad incluso con colores claros. Cambiar el aspecto no
+modifica saldos, cupos ni movimientos.
