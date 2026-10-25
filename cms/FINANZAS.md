@@ -53,7 +53,11 @@ ni credenciales. Se admite una imagen opcional por cuenta/tarjeta, almacenada en
 el archivo financiero privado (nunca /media). Solo se permiten referencias a
 imágenes válidas, no PDF. Se muestra en la ficha y se puede cambiar o quitar.
 El usuario elige un logo o una foto con datos sensibles previamente tapados; no
-se realiza redacción automática. Comparte el límite de 100 MB y se conserva en el
+se realiza redacción automática. La selección usa un botón explícito, selector
+nativo alternativo y soporte de arrastrar/pegar imágenes. Acepta imágenes de la
+galería; si createImageBitmap no está disponible, usa decodificación Image del
+navegador. Los formatos no decodificables solicitan JPG/PNG. El archivo se
+convierte a WebP (o el formato compatible del navegador) antes de subirlo. Comparte el límite de 100 MB y se conserva en el
 historial al quitarla. Se ingresa el saldo al **comenzar** una fecha y luego sus movimientos.
 Crédito: deuda positiva o saldo a favor negativo; cupo y días de pago/facturación.
 
@@ -165,3 +169,7 @@ node scripts/check-wallet-browser.cjs
 Servidores con fechas fijas, base :memory: y localhost, nunca importados por el
 Worker publicado. La prueba visual OCR simula la respuesta en Playwright, sin
 modelo externo ni factura real.
+
+`node scripts/check-card-picker.cjs` verifica apertura real del selector, toque,
+fallback sin showPicker/createImageBitmap, selector alternativo, arrastrar y
+pegar, con persistencia después de guardar/recargar. Usa el servidor wallet.
