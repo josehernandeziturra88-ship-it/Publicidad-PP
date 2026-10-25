@@ -212,3 +212,14 @@ importe y las identifica como mixtas; Ver / editar conserva el comprobante
 completo y su reparto. El contador del resumen usa el mismo filtro. Los gastos
 personales permanecen guardados y accesibles desde el dashboard de cuentas,
 incluidos sus enlaces de edición. No se alteran cargos, saldos ni el respaldo.
+
+
+## Acceso desde el inicio del iPhone
+
+Las tres páginas del panel declaran apple-touch-icon, favicon PNG, título corto,
+theme-color y modo web app de Safari. Usan el logo existente (PNG 512×512) de
+`assets/playero-app-icon.png`, publicado en el sitio público y enlazado por HTTPS,
+para que iOS pueda descargar la marca sin autenticarse en el panel. El icono
+no incluye datos financieros ni cambia las reglas de Cloudflare Access. No hay
+service worker ni caché local de datos privados. Actualizar el Worker, recargar
+en Safari y volver a agregar el acceso si el icono anterior sigue guardado.
